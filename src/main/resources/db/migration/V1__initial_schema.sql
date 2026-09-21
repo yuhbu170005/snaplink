@@ -1,0 +1,37 @@
+-- 1. Bảng users
+CREATE TABLE IF NOT EXISTS users (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+-- 2. Bảng urls
+CREATE TABLE IF NOT EXISTS urls (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    short_code VARCHAR(16) NOT NULL UNIQUE,
+    original_url TEXT NOT NULL,
+    custom_alias VARCHAR(64) UNIQUE,
+    user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    expires_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE NOT NULL
+);
+
+-- 3. Bảng click_events
+CREATE TABLE IF NOT EXISTS click_events (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    url_id BIGINT NOT NULL REFERENCES urls(id) ON DELETE CASCADE,
+    clicked_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    ip_address VARCHAR(45),
+    country VARCHAR(100),
+    device_type VARCHAR(50),
+    browser VARCHAR(50),
+    referrer TEXT
+);
+
+-- 4. Tạo Index tối ưu hiệu năng
+CREATE INDEX IF NOT EXISTS idx_urls_short_code ON urls(short_code);
+CREATE INDEX IF NOT EXISTS idx_urls_user_id ON urls(user_id);
+CREATE INDEX IF NOT EXISTS idx_click_events_url_id ON click_events(url_id);
+CREATE INDEX IF NOT EXISTS idx_click_events_clicked_at ON click_events(clicked_at);
