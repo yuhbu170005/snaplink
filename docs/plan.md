@@ -13,7 +13,7 @@
 |---|---|---|
 | Ngày 1 | Setup project Spring Boot 3.x (Web, JPA, Security, Validation), kết nối PostgreSQL local (Docker Compose cho Postgres + Redis luôn để đỡ setup lại tuần sau). Tạo repo Git, cấu trúc package theo layered architecture (controller/service/repository/dto/entity). | ☑ |
 | Ngày 2 | Thiết kế & tạo migration cho 3 bảng: `users`, `urls`, `click_events` (dùng Flyway hoặc Liquibase để dễ quản lý về sau). Thêm index trên `short_code` và `url_id`. | ☑ |
-| Ngày 3–4 | Học nhanh JWT filter chain + implement Spring Security: `POST /api/auth/register`, `POST /api/auth/login`. BCrypt hash password, sinh JWT có thời hạn. (Rủi ro đã nêu trong BRD — dành hẳn 2 ngày.) | ☐ |
+| Ngày 3–4 | Học nhanh JWT filter chain + implement Spring Security: `POST /api/auth/register`, `POST /api/auth/login`. BCrypt hash password, sinh JWT có thời hạn. (Rủi ro đã nêu trong BRD — dành hẳn 2 ngày.) | ☑ |
 | Ngày 5 | `POST /api/urls`: validate URL (định dạng hợp lệ, chặn scheme `javascript:`, `data:`...), sinh short code bằng Base62 encode từ auto-increment ID, lưu DB. Hỗ trợ optional custom alias (check unique constraint). | ☐ |
 | Ngày 6 | `GET /api/urls` (list theo user), `DELETE /api/urls/{id}` (xoá/vô hiệu hoá, chỉ cho chủ sở hữu). Thêm expiration date khi tạo link (FR1.4). | ☐ |
 | Ngày 7 | Viết unit test cho AuthService và UrlService (build coverage ngay từ đầu). Buffer/catch-up nếu JWT ở ngày 3–4 kéo dài hơn dự kiến. | ☐ |
