@@ -10,18 +10,22 @@ import com.snaplink.entity.User;
 import com.snaplink.exception.BadRequestException;
 import com.snaplink.exception.ResourceNotFoundException;
 import com.snaplink.repository.UserRepository;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtTokenProvider tokenProvider;
+    UserRepository userRepository;
+    PasswordEncoder passwordEncoder;
+    JwtTokenProvider tokenProvider;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {

@@ -24,7 +24,9 @@ spring:
 #       port: ${REDIS_PORT:6379}
 
 app:
+  base-url: ${APP_BASE_URL:http://localhost:8080}
   jwt:
     secret: ${JWT_SECRET:your_super_secret_key_at_least_256_bits_long_default_snaplink_secret}
     expiration-ms: ${JWT_EXPIRATION:86400000}
+
 

@@ -1,0 +1,181 @@
+<!DOCTYPE html><html lang="vi" style=""><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_blank" name="shell-type"><title>SnapLink - Xác thực &amp; Đăng Nhập</title><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"surface-container":"#eaedff","inverse-primary":"#c3c0ff","primary-fixed":"#e2dfff","outline":"#777587","on-background":"#131b2e","primary-fixed-dim":"#c3c0ff","surface":"#faf8ff","brand-purple-glow":"#9855FF","secondary-container":"#8a4cfc","on-tertiary-fixed-variant":"#005236","brand-purple-light":"#C49BFF","surface-container-high":"#e2e7ff","tertiary-container":"#006e4b","brand-violet":"#7C3AED","error-container":"#ffdad6","primary":"#3525cd","inverse-on-surface":"#eef0ff","on-secondary-container":"#fffbff","surface-bright":"#faf8ff","text-primary":"#0F172A","secondary-fixed":"#eaddff","surface-container-lowest":"#ffffff","surface-tint":"#4d44e3","tertiary-fixed":"#6ffbbe","surface-container-low":"#f2f3ff","surface-variant":"#dae2fd","on-primary-fixed-variant":"#3323cc","on-tertiary-fixed":"#002113","status-rose":"#F43F5E","status-emerald":"#10B981","tertiary-fixed-dim":"#4edea3","error":"#ba1a1a","secondary-fixed-dim":"#d2bbff","border-subtle":"#E2E8F0","outline-variant":"#c7c4d8","text-secondary":"#64748B","on-secondary":"#ffffff","on-error-container":"#93000a","surface-card":"#FFFFFF","surface-card-subtle":"#F1F5F9","on-primary-container":"#dad7ff","text-muted":"#94A3B8","primary-container":"#4f46e5","brand-indigo":"#4F46E5","surface-container-highest":"#dae2fd","on-tertiary":"#ffffff","on-primary-fixed":"#0f0069","canvas-bg":"#F8FAFC","background":"#faf8ff","status-amber":"#F59E0B","on-secondary-fixed-variant":"#5a00c6","on-secondary-fixed":"#25005a","on-surface-variant":"#464555","secondary":"#712ae2","tertiary":"#005338","border-hover":"#CBD5E1","on-error":"#ffffff","on-surface":"#131b2e","inverse-surface":"#283044","surface-dim":"#d2d9f4","on-tertiary-container":"#67f4b7","on-primary":"#ffffff"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-lg":"1.5rem","space-md":"1rem","space-sm":"0.5rem","gutter-mobile":"1rem","margin-mobile":"1rem","gutter":"1.5rem","space-xl":"2.5rem","space-xs":"0.25rem","margin":"2rem"},"fontFamily":{"headline-lg":["Outfit"],"headline-sm":["Outfit"],"label-lg":["Inter"],"body-md":["Inter"],"display-hero":["Outfit"],"headline-md":["Outfit"],"body-lg":["Inter"],"display-hero-mobile":["Outfit"],"label-md":["Inter"],"body-sm":["Inter"],"code-sm":["Inter"]},"fontSize":{"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-sm":["20px",{"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"600"}],"label-lg":["14px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"600"}],"body-md":["15px",{"lineHeight":"24px","fontWeight":"400"}],"display-hero":["52px",{"lineHeight":"60px","letterSpacing":"-0.03em","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"-0.015em","fontWeight":"600"}],"body-lg":["18px",{"lineHeight":"28px","letterSpacing":"-0.005em","fontWeight":"400"}],"display-hero-mobile":["34px",{"lineHeight":"42px","letterSpacing":"-0.02em","fontWeight":"700"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"body-sm":["13px",{"lineHeight":"20px","fontWeight":"400"}],"code-sm":["13px",{"lineHeight":"18px","letterSpacing":"-0.01em","fontWeight":"500"}]}}}};</script></head><body class="min-h-screen font-body-md text-on-surface relative antialiased flex flex-col justify-center items-center bg-surface-card" style="font-family: &quot;JetBrains Mono&quot;, monospace;"><div class="fixed inset-0 pointer-events-none -z-10 overflow-hidden"><div class="absolute inset-0 bg-[radial-gradient(#CBD5E1_1px,transparent_1px)] [background-size:24px_24px] opacity-60"></div></div><main class="w-full flex items-center justify-center p-space-md"><div class="flex flex-col w-full items-center justify-center py-6 px-4">
+<!-- Ambient Center Glow matching kiro.dev aesthetic -->
+<div class="relative w-full max-w-md">
+
+<!-- Login Glassmorphism Card -->
+<div class="relative backdrop-blur-xl rounded-2xl shadow-xl shadow-brand-indigo/5 p-6 sm:p-8 space-y-6 bg-surface-card">
+<!-- Top Brand Header -->
+<div class="flex flex-col items-center text-center space-y-3">
+<!-- Logo SnapLink -->
+<a aria-label="SnapLink Home" class="inline-flex items-center gap-2 group transition-transform hover:scale-105" href="/">
+<img alt="SnapLink Logo" class="h-9 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1UCM6d_3vHWl1Kx6GEhf56_JHJ3m7u5-fU0w-tbcjc9lvD9LqVRKjqx7qTjvouSuvIYs9HruUHOfdixBISS7XtahR0aTV5xGdodeoOxdlV80rLqgRT8IYzwTCjIdKI7YxgmG9QFuPF5FUx_PsRQejTC4b-jTdL9EcvnWKAGA0JCVgphn8ICgSSQ6-lujGcRqLegpTE-T0B5wiUkBfKAz9dbnQrQcybfcDRC61FOvaemxFR_ymCMscbjq1AD">
+</a>
+<div class="space-y-1">
+<h1 class="font-headline-md text-headline-md text-text-primary tracking-tight">Chào mừng trở lại</h1>
+<p class="font-body-sm text-body-sm text-text-secondary max-w-xs mx-auto">
+            Đăng nhập để quản lý các liên kết rút gọn và phân tích số liệu của bạn
+          </p>
+</div>
+</div>
+<!-- Quick Social Auth Buttons -->
+<div class="grid grid-cols-2 gap-3">
+<button class="group flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl bg-surface-card-subtle hover:bg-surface-container text-text-primary text-label-lg font-label-lg transition-all duration-200 hover:-translate-y-0.5 active:scale-95 shadow-sm" type="button">
+<svg class="w-4 h-4 shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+<path d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z" fill="#4285F4"></path>
+<path d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.94H1.27v3.15C3.26 21.36 7.33 24 12 24z" fill="#34A853"></path>
+<path d="M5.28 14.26a7.12 7.12 0 0 1 0-4.52V6.59H1.27a11.97 11.97 0 0 0 0 10.82l4.01-3.15z" fill="#FBBC05"></path>
+<path d="M12 4.77c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.27 6.59l4.01 3.15c.95-2.84 3.6-4.97 6.72-4.97z" fill="#EA4335"></path>
+</svg>
+<span class="">Google</span>
+</button>
+<button class="group flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl bg-surface-card-subtle hover:bg-surface-container text-text-primary text-label-lg font-label-lg transition-all duration-200 hover:-translate-y-0.5 active:scale-95 shadow-sm" type="button">
+<svg class="w-4 h-4 shrink-0 fill-current text-text-primary transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+<path clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" fill-rule="evenodd"></path>
+</svg>
+<span class="">GitHub</span>
+</button>
+</div>
+<!-- Divider -->
+<div class="relative flex items-center justify-center">
+<div class="w-full h-px bg-surface-container-high"></div>
+<span class="absolute bg-surface-card px-3 text-text-muted font-label-md text-label-md uppercase tracking-wider">
+          Hoặc đăng nhập bằng email
+        </span>
+</div>
+<!-- Alert Box for Error Notification (Hidden by default, dynamic) -->
+<div class="hidden flex items-start gap-2.5 p-3 rounded-xl bg-error-container/40 text-error" id="login-error-alert">
+<span class="material-symbols-outlined text-lg shrink-0 mt-0.5">error</span>
+<div class="font-body-sm text-body-sm text-error">
+<span class="font-semibold">Đăng nhập thất bại:</span> Email hoặc mật khẩu không chính xác.
+        </div>
+</div>
+<!-- Main Form -->
+<form class="space-y-4" id="login-form" onsubmit="event.preventDefault(); handleLoginSubmit();">
+<!-- Input: Email -->
+<div class="space-y-1.5">
+<label class="block font-label-lg text-label-lg text-text-primary" for="email">Email</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3.5 text-text-muted pointer-events-none text-xl">mail</span>
+<input class="w-full pl-10 pr-4 py-2.5 bg-surface-container-low focus:bg-surface-card text-text-primary rounded-xl font-body-md text-body-md transition-all duration-200 outline-none focus:shadow-md focus:shadow-brand-indigo/10 placeholder:text-text-muted" id="email" name="email" placeholder="email@domain.com" required="" type="email">
+</div>
+</div>
+<!-- Input: Password -->
+<div class="space-y-1.5">
+<div class="flex items-center justify-between">
+<label class="block font-label-lg text-label-lg text-text-primary" for="password">Mật khẩu</label>
+<a class="font-label-md text-label-md text-brand-indigo hover:text-brand-violet transition-colors" href="#">Quên mật khẩu?</a>
+</div>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3.5 text-text-muted pointer-events-none text-xl">lock</span>
+<input class="w-full pl-10 pr-11 py-2.5 bg-surface-container-low focus:bg-surface-card text-text-primary rounded-xl font-body-md text-body-md transition-all duration-200 outline-none focus:shadow-md focus:shadow-brand-indigo/10 placeholder:text-text-muted" id="password" minlength="6" name="password" placeholder="••••••••" required="" type="password">
+<button aria-label="Toggle password visibility" class="absolute right-3 p-1 rounded-lg text-text-muted hover:text-text-primary transition-colors flex items-center justify-center focus:outline-none" id="toggle-password" onclick="togglePasswordVisibility()" type="button">
+<span class="material-symbols-outlined text-xl" id="password-eye-icon">visibility</span>
+</button>
+</div>
+</div>
+<!-- Remember Me Checkbox -->
+<div class="flex items-center justify-between pt-1">
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<input class="w-4 h-4 rounded text-brand-indigo bg-surface-container-low accent-brand-indigo cursor-pointer transition" id="remember" type="checkbox">
+<span class="font-body-sm text-body-sm text-text-secondary">Ghi nhớ đăng nhập</span>
+</label>
+<span class="inline-flex items-center gap-1 font-code-sm text-code-sm text-status-emerald bg-emerald-50 px-2 py-0.5 rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-status-emerald animate-ping"></span>
+            Online
+          </span>
+</div>
+<!-- Submit Button -->
+<button class="w-full relative group overflow-hidden py-3 px-5 rounded-xl text-on-primary font-label-lg text-label-lg transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99] shadow-lg shadow-brand-indigo/25 flex items-center justify-center gap-2 primary-container" id="submit-btn" type="submit">
+<span class="flex items-center gap-2" id="btn-text">
+<span class="">Đăng Nhập Ngay</span>
+<span class="material-symbols-outlined text-lg transition-transform group-hover:translate-x-1">arrow_forward</span>
+</span>
+<span class="hidden" id="btn-spinner">
+<svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+<path class="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" fill="currentColor"></path>
+</svg>
+</span>
+</button>
+</form>
+<!-- Footer Registration Hook -->
+<div class="text-center pt-2">
+<p class="font-body-sm text-body-sm text-text-secondary">
+          Chưa có tài khoản? 
+          <a class="font-semibold text-brand-indigo hover:text-brand-violet underline underline-offset-4 decoration-brand-indigo/30 transition-colors" href="#">
+            Đăng ký miễn phí ngay
+          </a>
+</p>
+</div>
+<!-- Security / Trust Badge -->
+<div class="pt-3 flex items-center justify-center">
+<div class="inline-flex items-center gap-2 py-1.5 px-3.5 rounded-full bg-surface-container-low text-text-secondary font-label-md text-label-md">
+<span class="material-symbols-outlined text-status-emerald text-base" style="font-variation-settings: 'FILL' 1;">lock</span>
+<span class="">Bảo mật mã hóa JWT 256-bit chuẩn SaaS</span>
+</div>
+</div>
+</div>
+<!-- Telemetry Indicator Minimal Strip -->
+<div class="mt-6 flex items-center justify-between px-2 text-text-muted font-code-sm text-code-sm">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-status-emerald"></span>
+<span class="">Gateway API: 99.98% Uptime</span>
+</div>
+<span class="">v2.4.0-stable</span>
+</div>
+</div>
+</div>
+<script>
+  function togglePasswordVisibility() {
+    const passwordInput = document.getElementById('password');
+    const eyeIcon = document.getElementById('password-eye-icon');
+    if (!passwordInput || !eyeIcon) return;
+
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      eyeIcon.textContent = 'visibility_off';
+    } else {
+      passwordInput.type = 'password';
+      eyeIcon.textContent = 'visibility';
+    }
+  }
+
+  function handleLoginSubmit() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const btnText = document.getElementById('btn-text');
+    const btnSpinner = document.getElementById('btn-spinner');
+    const submitBtn = document.getElementById('submit-btn');
+    const alertBox = document.getElementById('login-error-alert');
+
+    // UI Loading state
+    alertBox.classList.add('hidden');
+    btnText.classList.add('opacity-0');
+    btnSpinner.classList.remove('hidden');
+    submitBtn.disabled = true;
+
+    // Simulate Auth validation & API mapping
+    setTimeout(() => {
+      btnText.classList.remove('opacity-0');
+      btnSpinner.classList.add('hidden');
+      submitBtn.disabled = false;
+
+      // Mock validation demonstration
+      if (email.includes('error')) {
+        alertBox.classList.remove('hidden');
+      } else {
+        localStorage.setItem('snaplink_jwt_token', 'mock_jwt_token_' + Date.now());
+        btnText.innerHTML = '<span class="material-symbols-outlined text-lg">check</span><span>Thành công! Chuyển hướng...</span>';
+        submitBtn.classList.remove('from-brand-violet', 'to-brand-indigo');
+        submitBtn.classList.add('bg-status-emerald');
+        setTimeout(() => {
+          // If in full context, would redirect to /dashboard
+          console.log('Redirecting to /dashboard');
+        }, 1000);
+      }
+    }, 1200);
+  }
+</script></main>
+
+</body></html>

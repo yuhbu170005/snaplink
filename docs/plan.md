@@ -14,9 +14,9 @@
 | Ngày 1 | Setup project Spring Boot 3.x (Web, JPA, Security, Validation), kết nối PostgreSQL local (Docker Compose cho Postgres + Redis luôn để đỡ setup lại tuần sau). Tạo repo Git, cấu trúc package theo layered architecture (controller/service/repository/dto/entity). | ☑ |
 | Ngày 2 | Thiết kế & tạo migration cho 3 bảng: `users`, `urls`, `click_events` (dùng Flyway hoặc Liquibase để dễ quản lý về sau). Thêm index trên `short_code` và `url_id`. | ☑ |
 | Ngày 3–4 | Học nhanh JWT filter chain + implement Spring Security: `POST /api/auth/register`, `POST /api/auth/login`. BCrypt hash password, sinh JWT có thời hạn. (Rủi ro đã nêu trong BRD — dành hẳn 2 ngày.) | ☑ |
-| Ngày 5 | `POST /api/urls`: validate URL (định dạng hợp lệ, chặn scheme `javascript:`, `data:`...), sinh short code bằng Base62 encode từ auto-increment ID, lưu DB. Hỗ trợ optional custom alias (check unique constraint). | ☐ |
-| Ngày 6 | `GET /api/urls` (list theo user), `DELETE /api/urls/{id}` (xoá/vô hiệu hoá, chỉ cho chủ sở hữu). Thêm expiration date khi tạo link (FR1.4). | ☐ |
-| Ngày 7 | Viết unit test cho AuthService và UrlService (build coverage ngay từ đầu). Buffer/catch-up nếu JWT ở ngày 3–4 kéo dài hơn dự kiến. | ☐ |
+| Ngày 5 | `POST /api/urls`: validate URL (định dạng hợp lệ, chặn scheme `javascript:`, `data:`...), sinh short code bằng Base62 encode từ auto-increment ID, lưu DB. Hỗ trợ optional custom alias (check unique constraint). | ☑ |
+| Ngày 6 | `GET /api/urls` (list theo user), `DELETE /api/urls/{id}` (xoá/vô hiệu hoá, chỉ cho chủ sở hữu). Thêm expiration date khi tạo link (FR1.4). | ☑ |
+| Ngày 7 | Viết unit test cho AuthService và UrlService (build coverage ngay từ đầu). Buffer/catch-up nếu JWT ở ngày 3–4 kéo dài hơn dự kiến. | ☑ |
 
 **Rủi ro cần theo dõi:** Nếu JWT chiếm quá nhiều thời gian, có thể tạm dùng auth đơn giản (API key hoặc session) cho bản demo đầu, quay lại hoàn thiện JWT sau — nhưng đừng bỏ hẳn vì FR3 yêu cầu rõ JWT-based.
 
@@ -52,6 +52,44 @@
 | Ngày 19 | Chốt unit test, đảm bảo đạt ≥70% coverage tầng Service (dùng JaCoCo để đo). Fix bug phát sinh. | ☐ |
 | Ngày 20 | Deploy backend lên Render/Railway, cấu hình biến môi trường (DB, Redis, JWT secret). Nếu có frontend tối giản, deploy lên Vercel/Netlify. Test lại toàn bộ flow trên môi trường thật, đo lại latency redirect thực tế. | ☐ |
 | Ngày 21 | Viết README: kiến trúc hệ thống (kèm diagram), hướng dẫn chạy local, các điểm kỹ thuật nổi bật (cache-aside, async event, rate limiting, Base62 encoding). Review lại checklist DoD. | ☐ |
+
+---
+
+## 🛡️ CHIẾN LƯỢC XỬ LÝ ĐỤNG ĐỘ & TỐI ƯU DATABASE (Concurrency & Conflict Prevention)
+
+Dưới đây là các điểm đụng độ tiềm ẩn đã được phân tích và chốt giải pháp xử lý ở mức Database & Tầng dữ liệu:
+
+### 1. Đụng độ Custom Alias & Short Code (Race Condition khi 2 user cùng chọn 1 Alias)
+- **Rủi ro:** 2 request cùng gửi một custom alias trong cùng 1ms; cả 2 đều pass bước check `existsBy...` trong code.
+- **Giải pháp:**
+  - Database Constraint là chốt chặn cuối cùng: `UNIQUE (short_code)` và `UNIQUE (custom_alias)`.
+  - Tầng Service bọc `try-catch DataIntegrityViolationException` (Postgres error `23505`) và chuyển thành `ConflictException` (HTTP 409).
+  - Bảng `urls` dùng `short_code` làm Unique Routing Key duy nhất cho cả mã tự sinh và custom alias.
+
+### 2. Tối ưu sinh mã Base62 tự động (Loại bỏ 2 bước Write: INSERT tạm UUID + UPDATE)
+- **Rủi ro:** Insert bản ghi với UUID tạm rồi Update lại sau khi có ID làm tăng số lần ghi và giữ lock lâu.
+- **Giải pháp:**
+  - Lấy trước giá trị sequence từ PostgreSQL: `SELECT nextval('urls_id_seq')`.
+  - Sinh mã Base62 ngay lập tức: `Base62.encode(id + BASE_OFFSET)`.
+  - Thực hiện đúng **1 lệnh INSERT duy nhất** vào DB.
+
+### 3. Đụng độ Ghi nhận Click Analytics (Write Contention khi Link Viral)
+- **Rủi ro:** Hàng ngàn lượt click/giây nếu chạy lệnh `UPDATE urls SET click_count = click_count + 1` sẽ gây tranh chấp Row-level Lock trên PostgreSQL, làm nghẽn connection pool.
+- **Giải pháp:**
+  - Áp dụng kiến trúc **Append-Only**: Không `UPDATE` bảng `urls` trong luồng Redirect chính; chỉ `INSERT` bất đồng bộ (`@Async`) vào bảng `click_events`.
+  - Tăng counter click trên Redis bằng lệnh nguyên tử `INCR url:{id}:clicks` để phục vụ response tức thì.
+
+### 4. Đụng độ Cache Stampede / Thundering Herd (Khi Redirect - Tuần 2)
+- **Rủi ro:** Khi link hết hạn TTL trong Redis, hàng ngàn request cùng lúc truy vấn PostgreSQL tìm link gốc.
+- **Giải pháp:**
+  - B-Tree Index trên `short_code` đảm bảo tốc độ query $O(\log N)$.
+  - Sử dụng cơ chế Mutex/Lock đồng bộ (hoặc Double-Checked Locking) để chỉ 1 request query DB nạp lại Redis.
+
+### 5. Đụng độ Email người dùng (Case-Insensitive Unique)
+- **Rủi ro:** User đăng ký `User@example.com` và `user@example.com`.
+- **Giải pháp:**
+  - Tầng code chuẩn hoá `toLowerCase().trim()`.
+  - Tầng DB tạo Index `CREATE UNIQUE INDEX idx_users_email_lower ON users(LOWER(email))`.
 
 ---
 

@@ -1,0 +1,483 @@
+<!DOCTYPE html><html lang="vi" style=""><svg class="inline-defs-container" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"></svg><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><title>SnapLink - URL Shortener &amp; Analytics Platform</title><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"surface-container":"#eaedff","inverse-primary":"#c3c0ff","primary-fixed":"#e2dfff","outline":"#777587","on-background":"#131b2e","primary-fixed-dim":"#c3c0ff","surface":"#faf8ff","brand-purple-glow":"#9855FF","secondary-container":"#8a4cfc","on-tertiary-fixed-variant":"#005236","brand-purple-light":"#C49BFF","surface-container-high":"#e2e7ff","tertiary-container":"#006e4b","brand-violet":"#7C3AED","error-container":"#ffdad6","primary":"#3525cd","inverse-on-surface":"#eef0ff","on-secondary-container":"#fffbff","surface-bright":"#faf8ff","text-primary":"#0F172A","secondary-fixed":"#eaddff","surface-container-lowest":"#ffffff","surface-tint":"#4d44e3","tertiary-fixed":"#6ffbbe","surface-container-low":"#f2f3ff","surface-variant":"#dae2fd","on-primary-fixed-variant":"#3323cc","on-tertiary-fixed":"#002113","status-rose":"#F43F5E","status-emerald":"#10B981","tertiary-fixed-dim":"#4edea3","error":"#ba1a1a","secondary-fixed-dim":"#d2bbff","border-subtle":"#E2E8F0","outline-variant":"#c7c4d8","text-secondary":"#64748B","on-secondary":"#ffffff","on-error-container":"#93000a","surface-card":"#FFFFFF","surface-card-subtle":"#F1F5F9","on-primary-container":"#dad7ff","text-muted":"#94A3B8","primary-container":"#4f46e5","brand-indigo":"#4F46E5","surface-container-highest":"#dae2fd","on-tertiary":"#ffffff","on-primary-fixed":"#0f0069","canvas-bg":"#F8FAFC","background":"#faf8ff","status-amber":"#F59E0B","on-secondary-fixed-variant":"#5a00c6","on-secondary-fixed":"#25005a","on-surface-variant":"#464555","secondary":"#712ae2","tertiary":"#005338","border-hover":"#CBD5E1","on-error":"#ffffff","on-surface":"#131b2e","inverse-surface":"#283044","surface-dim":"#d2d9f4","on-tertiary-container":"#67f4b7","on-primary":"#ffffff"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-lg":"1.5rem","space-md":"1rem","space-sm":"0.5rem","gutter-mobile":"1rem","margin-mobile":"1rem","gutter":"1.5rem","space-xl":"2.5rem","space-xs":"0.25rem","margin":"2rem"},"fontFamily":{"headline-lg":["Outfit"],"headline-sm":["Outfit"],"label-lg":["Inter"],"body-md":["Inter"],"display-hero":["Outfit"],"headline-md":["Outfit"],"body-lg":["Inter"],"display-hero-mobile":["Outfit"],"label-md":["Inter"],"body-sm":["Inter"],"code-sm":["Inter"]},"fontSize":{"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-sm":["20px",{"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"600"}],"label-lg":["14px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"600"}],"body-md":["15px",{"lineHeight":"24px","fontWeight":"400"}],"display-hero":["52px",{"lineHeight":"60px","letterSpacing":"-0.03em","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"-0.015em","fontWeight":"600"}],"body-lg":["18px",{"lineHeight":"28px","letterSpacing":"-0.005em","fontWeight":"400"}],"display-hero-mobile":["34px",{"lineHeight":"42px","letterSpacing":"-0.02em","fontWeight":"700"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"body-sm":["13px",{"lineHeight":"20px","fontWeight":"400"}],"code-sm":["13px",{"lineHeight":"18px","letterSpacing":"-0.01em","fontWeight":"500"}]}}}};</script></head><body class="min-h-screen font-body-md text-on-surface relative antialiased selection:bg-brand-violet/10 selection:text-brand-violet bg-surface-card" style="font-family: &quot;JetBrains Mono&quot;, monospace;"><header class="fixed top-0 inset-x-0 z-50 bg-surface-card/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 max-w-7xl mx-auto px-6 flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md shrink-0"><a class="flex items-center gap-space-sm group" data-path="trang-chu" href="#"><img alt="SnapLink Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1UCM6d_3vHWl1Kx6GEhf56_JHJ3m7u5-fU0w-tbcjc9lvD9LqVRKjqx7qTjvouSuvIYs9HruUHOfdixBISS7XtahR0aTV5xGdodeoOxdlV80rLqgRT8IYzwTCjIdKI7YxgmG9QFuPF5FUx_PsRQejTC4b-jTdL9EcvnWKAGA0JCVgphn8ICgSSQ6-lujGcRqLegpTE-T0B5wiUkBfKAz9dbnQrQcybfcDRC61FOvaemxFR_ymCMscbjq1AD"><span class="font-headline-sm text-headline-sm text-text-primary tracking-tight group-hover:text-primary transition-colors">SnapLink</span></a></div><nav class="hidden lg:flex items-center gap-space-xs p-1 rounded-xl" data-active-classes="text-primary font-semibold bg-surface-container-low"><a aria-current="page" class="px-space-md py-space-xs rounded-lg transition-colors text-primary font-semibold bg-surface-container-low" data-path="trang-chu" href="#">Trang Chủ</a><a class="px-space-md py-space-xs rounded-lg font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="dashboard" href="#">Dashboard</a><a class="px-space-md py-space-xs rounded-lg font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="thong-ke" href="#">Thống Kê</a><a class="px-space-md py-space-xs rounded-lg font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="tai-lieu-api" href="#">Tài Liệu API</a><a class="px-space-md py-space-xs rounded-lg font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="bang-gia" href="#">Bảng Giá</a></nav><div class="flex items-center gap-space-sm"><button class="inline-flex items-center gap-space-xs px-space-md py-2 rounded-lg text-on-primary font-label-lg text-label-lg shadow-[0_4px_14px_0_rgba(124,58,237,0.35)] hover:brightness-105 active:scale-98 transition-all shrink-0 bg-brand-violet" type="button"><span class="material-symbols-outlined text-[18px]">add_link</span><span class="">+ Rút gọn nhanh</span></button><button aria-label="Thông báo" class="relative p-2 rounded-lg text-text-secondary hover:text-on-surface hover:bg-surface-card-subtle transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-status-emerald ring-2 ring-surface-card"></span></button><div class="flex items-center gap-space-xs pl-space-xs"><button class="flex items-center gap-2 p-1 rounded-full hover:bg-surface-card-subtle transition-colors group" type="button"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-border-subtle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5D31IoIsznqoZW-w8O2wGNvf5jaKUewCqtGpplKUhem8KhgdRLbz7Q9HOJNukAzej5um2DfB0FTJaKxpxCghaTM4uU-r-o44P4CBiF9gXP4_RgnpjUNIStUbky6b3rlSkRRNQn7SWsN2reDcfs34_FsVkUho10cfqD3KZq8rG5j6gSZNo-u9eRJDfwdOp4nz4ry0qfCbx8-BTk5zH1ZJZfAYxq5zvfsT9Jthjuo6oEz3iVEsUQTFCDg"><div class="hidden md:flex flex-col text-left"><span class="font-label-md text-label-md text-text-primary group-hover:text-primary transition-colors">Ngân Kim</span></div><span class="material-symbols-outlined text-text-muted text-[18px]">expand_more</span></button></div></div></div></header><main class="w-full pt-16"><div class="flex flex-col w-full">
+<!-- Interactive Toast Notification container (Hidden by default, triggered on copy) -->
+<div class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-space-sm px-space-md py-3 bg-surface-card rounded-xl shadow-xl border-0 ring-0 text-text-primary" id="copyToast">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-text-primary">Đã sao chép liên kết!</span>
+<span class="font-body-sm text-body-sm text-text-secondary">Sẵn sàng dán vào chiến dịch của bạn.</span>
+</div>
+</div>
+<!-- QR Modal Backdrop -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-background/50 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200" id="qrModal">
+<div class="bg-surface-card rounded-xl max-w-md w-full p-space-lg shadow-xl relative flex flex-col items-center text-center">
+<button aria-label="Đóng modal" class="absolute top-4 right-4 p-2 text-text-muted hover:text-on-surface hover:bg-surface-card-subtle rounded-lg transition-colors" onclick="toggleQrModal(false)" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-brand-violet mb-space-sm">
+<span class="material-symbols-outlined text-[26px]">qr_code_2</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-primary mb-1">Mã QR Động</h3>
+<p class="font-body-sm text-body-sm text-text-secondary mb-space-md">Quét mã để truy cập tức thì hoặc tải ảnh về cho ấn phẩm in ấn</p>
+<!-- Precision Vector QR Code Preview -->
+<div class="p-space-md bg-surface-card-subtle rounded-xl flex items-center justify-center mb-space-md shadow-sm">
+<svg class="w-48 h-48 text-text-primary" fill="currentColor" viewBox="0 0 120 120">
+<!-- Top Left Finder Pattern -->
+<rect fill="currentColor" height="30" rx="4" width="30" x="10" y="10"></rect>
+<rect fill="#FFFFFF" height="20" rx="2" width="20" x="15" y="15"></rect>
+<rect fill="#4F46E5" height="10" rx="1" width="10" x="20" y="20"></rect>
+<!-- Top Right Finder Pattern -->
+<rect fill="currentColor" height="30" rx="4" width="30" x="80" y="10"></rect>
+<rect fill="#FFFFFF" height="20" rx="2" width="20" x="85" y="15"></rect>
+<rect fill="#4F46E5" height="10" rx="1" width="10" x="90" y="20"></rect>
+<!-- Bottom Left Finder Pattern -->
+<rect fill="currentColor" height="30" rx="4" width="30" x="10" y="80"></rect>
+<rect fill="#FFFFFF" height="20" rx="2" width="20" x="15" y="85"></rect>
+<rect fill="#4F46E5" height="10" rx="1" width="10" x="20" y="90"></rect>
+<!-- Data Pixels & Brand Motif -->
+<rect fill="currentColor" height="6" rx="1" width="6" x="48" y="12"></rect>
+<rect fill="#7C3AED" height="6" rx="1" width="10" x="58" y="12"></rect>
+<rect fill="currentColor" height="8" rx="1" width="8" x="48" y="24"></rect>
+<rect fill="currentColor" height="6" rx="1" width="8" x="62" y="24"></rect>
+<rect fill="currentColor" height="12" rx="1" width="6" x="12" y="48"></rect>
+<rect fill="#4F46E5" height="8" rx="1" width="8" x="24" y="52"></rect>
+<rect fill="currentColor" height="6" rx="1" width="14" x="38" y="48"></rect>
+<rect fill="currentColor" height="16" rx="1" width="8" x="58" y="48"></rect>
+<rect fill="#7C3AED" height="8" rx="1" width="10" x="72" y="48"></rect>
+<rect fill="currentColor" height="12" rx="1" width="6" x="88" y="48"></rect>
+<rect fill="currentColor" height="8" rx="1" width="8" x="100" y="52"></rect>
+<rect fill="#7C3AED" height="8" rx="1" width="8" x="44" y="60"></rect>
+<rect fill="currentColor" height="6" rx="1" width="12" x="70" y="62"></rect>
+<rect fill="currentColor" height="6" rx="1" width="6" x="88" y="66"></rect>
+<rect fill="currentColor" height="10" rx="1" width="8" x="100" y="66"></rect>
+<rect fill="currentColor" height="14" rx="1" width="8" x="48" y="78"></rect>
+<rect fill="#4F46E5" height="8" rx="1" width="8" x="62" y="74"></rect>
+<rect fill="currentColor" height="16" rx="1" width="6" x="76" y="80"></rect>
+<rect fill="currentColor" height="6" rx="1" width="12" x="88" y="82"></rect>
+<rect fill="#7C3AED" height="8" rx="1" width="16" x="48" y="98"></rect>
+<rect fill="currentColor" height="6" rx="1" width="12" x="70" y="102"></rect>
+<rect fill="currentColor" height="12" rx="1" width="10" x="90" y="96"></rect>
+<!-- Center SnapLink Micro Logo Dot -->
+<circle cx="60" cy="60" fill="#10B981" r="7"></circle>
+</svg>
+</div>
+<div class="px-space-md py-2 bg-surface-container rounded-lg font-code-sm text-code-sm text-brand-violet mb-space-lg select-all">
+        https://snaplink.io/ngan-cv
+      </div>
+<div class="flex items-center gap-space-sm w-full">
+<button class="flex-1 py-2.5 px-space-md rounded-lg bg-surface-card-subtle hover:bg-surface-container font-label-lg text-label-lg text-text-primary transition-colors flex items-center justify-center gap-2" onclick="triggerCopyAction()" type="button">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+<span class="">Sao chép Link</span>
+</button>
+<button class="flex-1 py-2.5 px-space-md rounded-lg text-on-primary font-label-lg text-label-lg hover:brightness-105 active:scale-98 transition-all flex items-center justify-center gap-2 shadow-sm bg-brand-violet" onclick="toggleQrModal(false)" type="button">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span class="">Tải mã PNG</span>
+</button>
+</div>
+</div>
+</div>
+<!-- SECTION 1: HERO & CORE ENGINE -->
+<section class="relative w-full max-w-7xl mx-auto px-6 pt-12 pb-space-xl flex flex-col items-center text-center">
+<!-- Speed/Version Pill -->
+<div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-card shadow-sm hover:shadow-md transition-shadow cursor-default mb-space-md">
+<span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-purple-light/20 text-brand-violet">
+<span class="material-symbols-outlined text-[15px]">bolt</span>
+</span>
+<span class="font-label-md text-label-md text-text-primary font-semibold">Phiên bản 2.0</span>
+<span class="w-1 h-1 rounded-full bg-border-hover"></span>
+<span class="font-label-md text-label-md text-text-secondary">Tối ưu tốc độ chuyển hướng &lt; 50ms</span>
+<span class="w-2 h-2 rounded-full bg-status-emerald animate-pulse ml-0.5"></span>
+</div>
+<!-- Hero Title -->
+<h1 class="font-display-hero text-display-hero-mobile md:text-display-hero text-text-primary max-w-4xl tracking-tight mb-space-md">
+      Rút Gọn Link Thông Minh, 
+      <span class="from-purple-600 via-indigo-600 to-violet-500 text-brand-violet">Theo Dõi Toàn Diện</span>
+</h1>
+<!-- Subtitle -->
+<p class="font-body-lg text-body-lg text-text-secondary max-w-2xl mb-space-xl leading-relaxed">
+      Biến những liên kết dài dòng thành đường dẫn ngắn gọn, an toàn và phân tích lưu lượng truy cập chuyên sâu chỉ trong 1 giây.
+    </p>
+<!-- URL Shortener Engine Card (UrlInputForm) -->
+<div class="w-full max-w-4xl bg-surface-card rounded-2xl shadow-xl p-space-md md:p-space-lg relative text-left">
+<form class="space-y-space-md" id="urlShortenForm" onsubmit="event.preventDefault(); handleShortenSubmit();">
+<!-- Main Input Capsule -->
+<div class="relative flex flex-col sm:flex-row items-stretch sm:items-center bg-surface-card-subtle rounded-xl p-1.5 focus-within:bg-surface-card transition-colors">
+<div class="flex items-center gap-space-sm px-space-sm flex-1 min-w-0">
+<span class="material-symbols-outlined text-text-muted text-[24px] shrink-0">link</span>
+<input class="w-full bg-transparent py-3 text-text-primary font-body-md text-body-md placeholder:text-text-muted focus:outline-none" id="originalUrlInput" placeholder="Dán đường dẫn cần rút gọn tại đây (https://your-very-long-url-here.com/...)" required="" type="url" value="https://linkedin.com/in/ngankim-product-lead-series-a-fintech-2026-portfolio-credentials">
+</div>
+<button class="mt-2 sm:mt-0 shrink-0 px-space-lg py-3 rounded-lg hover:brightness-105 active:scale-98 text-on-primary font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-md transition-all bg-brand-violet" id="submitShortenBtn" type="submit">
+<span class="material-symbols-outlined text-[18px]">auto_fix_high</span>
+<span class="">Rút gọn ngay</span>
+</button>
+</div>
+<!-- Accordion: Tuỳ chọn nâng cao (Mở sẵn theo đặc tả) -->
+<div class="rounded-xl bg-surface-container-low p-space-md">
+<div class="flex items-center justify-between cursor-pointer select-none mb-space-sm" onclick="toggleAccordion('advancedOptionsBody', 'accordionIcon')">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-brand-violet text-[20px]">tune</span>
+<span class="font-label-lg text-label-lg text-text-primary">Tuỳ chọn nâng cao</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-brand-violet/10 text-brand-violet">
+                Pro Feature
+              </span>
+</div>
+<button aria-label="Đóng mở tuỳ chọn nâng cao" class="text-text-secondary hover:text-text-primary transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px] transition-transform duration-200" id="accordionIcon">expand_less</span>
+</button>
+</div>
+<!-- Options Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md pt-2" id="advancedOptionsBody">
+<!-- Custom Alias with Fixed Domain Prefix -->
+<div class="space-y-1.5">
+<label class="block font-label-md text-label-md text-text-secondary" for="customAliasInput">Tên đại diện tuỳ chỉnh (Custom Alias)</label>
+<div class="flex items-center bg-surface-card rounded-lg overflow-hidden shadow-sm">
+<span class="px-3 py-2 bg-surface-card-subtle font-code-sm text-code-sm text-text-muted select-none">snaplink.io/</span>
+<input class="w-full px-3 py-2 font-code-sm text-code-sm text-text-primary focus:outline-none bg-transparent" id="customAliasInput" placeholder="alias-cua-ban" type="text" value="ngan-cv">
+</div>
+</div>
+<!-- DateTime Expiration Picker -->
+<div class="space-y-1.5">
+<div class="flex items-center justify-between">
+<label class="block font-label-md text-label-md text-text-secondary" for="expiresAtInput">Hạn sử dụng liên kết</label>
+<span class="font-label-md text-label-md text-status-emerald flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-status-emerald"></span> Hợp lệ
+                </span>
+</div>
+<div class="relative flex items-center bg-surface-card rounded-lg shadow-sm">
+<span class="material-symbols-outlined absolute left-3 text-text-muted text-[18px]">calendar_today</span>
+<input class="w-full pl-10 pr-3 py-2 font-body-sm text-body-sm text-text-primary focus:outline-none bg-transparent rounded-lg" id="expiresAtInput" type="date" value="2026-10-01">
+</div>
+</div>
+</div>
+</div>
+</form>
+</div>
+<!-- RESULT CARD (ResultCard) -->
+<div class="w-full max-w-4xl mt-space-md bg-surface-card rounded-2xl shadow-xl p-space-md md:p-space-lg text-left relative overflow-hidden transition-all duration-300" id="resultCard">
+<!-- Glow Emerald Accent Bar on Generation -->
+<div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-status-emerald via-tertiary-fixed to-status-emerald"></div>
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-space-md">
+<!-- Short link and metadata details -->
+<div class="space-y-1 min-w-0 flex-1">
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md text-status-emerald font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">celebration</span>
+              🎉 Đường link của bạn đã sẵn sàng!
+            </span>
+<span class="px-2 py-0.5 rounded-md text-xs font-medium bg-surface-container-high text-primary">Active</span>
+</div>
+<div class="flex items-center gap-3 pt-1">
+<a class="font-headline-sm text-headline-sm text-primary hover:text-brand-violet transition-colors font-mono tracking-tight underline-offset-4 hover:underline truncate" href="https://snaplink.io/ngan-cv" rel="noopener noreferrer" target="_blank">
+              https://snaplink.io/ngan-cv
+            </a>
+<span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-tertiary-fixed text-on-tertiary-fixed">
+              Đã kiểm tra an toàn
+            </span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary truncate max-w-xl" title="https://linkedin.com/in/ngankim-product-lead-series-a-fintech-2026-portfolio-credentials">
+<span class="font-semibold text-text-muted">Link gốc:</span> https://linkedin.com/in/ngankim-product-lead-series-a-fintech-2026...
+          </p>
+</div>
+<!-- Mini QR Visual & Interactive Action Buttons -->
+<div class="flex items-center gap-space-sm w-full md:w-auto shrink-0 pt-2 md:pt-0">
+<!-- Clickable Mini QR Preview -->
+<div class="cursor-pointer p-1.5 rounded-xl bg-surface-card-subtle hover:bg-surface-container transition-colors flex items-center justify-center shrink-0 group" onclick="toggleQrModal(true)" title="Nhấp để phóng to QR">
+<svg class="w-10 h-10 text-text-primary group-hover:text-brand-violet transition-colors" fill="currentColor" viewBox="0 0 100 100">
+<rect fill="currentColor" height="30" rx="3" width="30" x="5" y="5"></rect>
+<rect fill="#FFFFFF" height="20" rx="2" width="20" x="10" y="10"></rect>
+<rect fill="#4F46E5" height="10" rx="1" width="10" x="15" y="15"></rect>
+<rect fill="currentColor" height="30" rx="3" width="30" x="65" y="5"></rect>
+<rect fill="#FFFFFF" height="20" rx="2" width="20" x="70" y="10"></rect>
+<rect fill="#4F46E5" height="10" rx="1" width="10" x="75" y="15"></rect>
+<rect fill="currentColor" height="30" rx="3" width="30" x="5" y="65"></rect>
+<rect fill="#FFFFFF" height="20" rx="2" width="20" x="10" y="70"></rect>
+<rect fill="#4F46E5" height="10" rx="1" width="10" x="15" y="75"></rect>
+<rect fill="currentColor" height="10" rx="1" width="10" x="45" y="15"></rect>
+<rect fill="#7C3AED" height="10" rx="1" width="10" x="45" y="45"></rect>
+<rect fill="currentColor" height="10" rx="1" width="15" x="75" y="45"></rect>
+<rect fill="currentColor" height="15" rx="1" width="10" x="45" y="75"></rect>
+<rect fill="currentColor" height="15" rx="1" width="15" x="70" y="75"></rect>
+</svg>
+</div>
+<!-- Copy Button with dynamic swap -->
+<button class="flex-1 md:flex-none px-space-md py-2.5 rounded-lg bg-surface-card-subtle hover:bg-surface-container font-label-lg text-label-lg text-text-primary flex items-center justify-center gap-1.5 transition-all shadow-sm" id="copyMainBtn" onclick="triggerCopyAction()" type="button">
+<span class="material-symbols-outlined text-[18px]" id="copyIcon">content_copy</span>
+<span id="copyText" class="">Sao chép</span>
+</button>
+<!-- QR Modal trigger -->
+<button class="px-3 py-2.5 rounded-lg bg-surface-card-subtle hover:bg-surface-container font-label-lg text-label-lg text-text-secondary hover:text-text-primary flex items-center justify-center gap-1 transition-colors" onclick="toggleQrModal(true)" type="button">
+<span class="material-symbols-outlined text-[18px]">qr_code_2</span>
+<span class="hidden sm:inline">Mã QR</span>
+</button>
+<!-- Analytics Button -->
+<a class="px-3 py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high font-label-lg text-label-lg text-primary flex items-center justify-center gap-1 transition-colors" data-path="thong-ke" href="#">
+<span class="material-symbols-outlined text-[18px]">equalizer</span>
+<span class="hidden sm:inline">Thống kê</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 2: SOCIAL PROOF / METRICS BAR -->
+<section class="w-full bg-surface-card py-space-lg shadow-sm">
+<div class="max-w-7xl mx-auto px-6">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md md:gap-space-lg text-center divide-y md:divide-y-0 md:divide-x divide-transparent">
+<!-- Metric 1 -->
+<div class="flex flex-col items-center p-space-sm">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-headline-lg text-headline-lg font-bold text-text-primary tracking-tight">10M+</span>
+<span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-status-emerald flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> +34%
+            </span>
+</div>
+<span class="font-label-lg text-label-lg text-text-secondary">Links rút gọn đã xử lý</span>
+<span class="font-body-sm text-body-sm text-text-muted">Được tạo bởi hơn 250,000 người dùng</span>
+</div>
+<!-- Metric 2 -->
+<div class="flex flex-col items-center p-space-sm pt-space-md md:pt-space-sm">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-headline-lg text-headline-lg font-bold text-text-primary tracking-tight">99.99%</span>
+<span class="w-2.5 h-2.5 rounded-full bg-status-emerald animate-pulse"></span>
+</div>
+<span class="font-label-lg text-label-lg text-text-secondary">Uptime máy chủ toàn cầu</span>
+<span class="font-body-sm text-body-sm text-text-muted">Đa vùng biên Edge SLA cam kết</span>
+</div>
+<!-- Metric 3 -->
+<div class="flex flex-col items-center p-space-sm pt-space-md md:pt-space-sm">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-headline-lg text-headline-lg font-bold text-text-primary tracking-tight">&lt; 50ms</span>
+<span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-brand-violet flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">speed</span> Siêu tốc
+            </span>
+</div>
+<span class="font-label-lg text-label-lg text-text-secondary">Độ trễ chuyển tiếp</span>
+<span class="font-body-sm text-body-sm text-text-muted">Hạ tầng CDN Anycast 300+ PoPs</span>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 3: FEATURE HIGHLIGHTS (Bento Glassmorphism Style) -->
+<section class="w-full max-w-7xl mx-auto px-6 py-space-xl">
+<div class="text-center max-w-2xl mx-auto mb-space-xl">
+<span class="font-label-md text-label-md uppercase tracking-wider text-brand-violet font-semibold">Khả năng vượt trội</span>
+<h2 class="font-headline-lg text-headline-lg text-text-primary mt-1 mb-space-sm">
+        Được xây dựng cho tốc độ, thiết kế cho sự chuẩn xác
+      </h2>
+<p class="font-body-md text-body-md text-text-secondary">
+        Mọi tính năng đều hướng tới trải nghiệm tối giản nhưng sở hữu sức mạnh viễn thông chuyên sâu dành cho Marketing và Nhà phát triển.
+      </p>
+</div>
+<!-- Bento Grid Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-lg">
+<!-- Card 1: Real-time Analytics -->
+<div class="bg-surface-card rounded-2xl p-space-lg shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+<div>
+<!-- Icon Capsule -->
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-primary group-hover:scale-105 transition-transform mb-space-md">
+<span class="material-symbols-outlined text-[24px]">query_stats</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-primary mb-space-xs">Phân tích thời gian thực</h3>
+<p class="font-body-md text-body-md text-text-secondary mb-space-md">
+            Nắm bắt tức thì lưu lượng truy cập theo quốc gia, hệ điều hành (iOS, Android, macOS), nguồn giới thiệu và tỷ lệ chuyển đổi.
+          </p>
+</div>
+<!-- In-card Mini Sparkline Metric Preview -->
+<div class="p-space-md bg-surface-card-subtle rounded-xl space-y-2">
+<div class="flex items-center justify-between font-label-md text-label-md text-text-secondary">
+<span class="">Clicks hôm nay</span>
+<span class="font-semibold text-status-emerald flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span> +24.8%
+            </span>
+</div>
+<!-- Inline Sparkline Vector Under 2KB -->
+<svg class="w-full h-12 text-primary" fill="none" preserveAspectRatio="none" viewBox="0 0 100 30">
+<defs>
+<linearGradient id="chartGrad" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#4F46E5" stop-opacity="0.25"></stop>
+<stop offset="100%" stop-color="#4F46E5" stop-opacity="0.0"></stop>
+</linearGradient>
+</defs>
+<path d="M0,25 Q15,22 25,18 T50,12 T75,6 T100,2 L100,30 L0,30 Z" fill="url(#chartGrad)"></path>
+<path d="M0,25 Q15,22 25,18 T50,12 T75,6 T100,2" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"></path>
+<circle cx="100" cy="2" fill="#10B981" r="3"></circle>
+</svg>
+</div>
+</div>
+<!-- Card 2: Dynamic QR Codes -->
+<div class="bg-surface-card rounded-2xl p-space-lg shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+<div>
+<!-- Icon Capsule -->
+<div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center text-brand-violet group-hover:scale-105 transition-transform mb-space-md">
+<span class="material-symbols-outlined text-[24px]">qr_code_scanner</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-primary mb-space-xs">Mã QR động thương hiệu</h3>
+<p class="font-body-md text-body-md text-text-secondary mb-space-md">
+            Tuỳ biến màu sắc, đính kèm logo công ty, tải định dạng vector SVG/PNG chất lượng cao và thay đổi link đích bất kỳ lúc nào mà không cần in lại mã.
+          </p>
+</div>
+<!-- Visual Element: Interactive Micro-Customizer Preview -->
+<div class="p-space-md bg-surface-card-subtle rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-full bg-brand-violet shadow-sm"></span>
+<span class="w-6 h-6 rounded-full bg-primary shadow-sm"></span>
+<span class="w-6 h-6 rounded-full bg-status-emerald shadow-sm"></span>
+<span class="font-label-md text-label-md text-text-muted pl-1">Palette</span>
+</div>
+<span class="inline-flex items-center gap-1 font-label-md text-label-md text-brand-violet font-semibold">
+<span class="material-symbols-outlined text-[16px]">verified</span> Vector SVG
+          </span>
+</div>
+</div>
+<!-- Card 3: Phishing Shield -->
+<div class="bg-surface-card rounded-2xl p-space-lg shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+<div>
+<!-- Icon Capsule -->
+<div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-status-emerald group-hover:scale-105 transition-transform mb-space-md">
+<span class="material-symbols-outlined text-[24px]">verified_user</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-primary mb-space-xs">Bảo mật chống phishing</h3>
+<p class="font-body-md text-body-md text-text-secondary mb-space-md">
+            Tự động quét mã độc và danh sách đen qua Google Safe Browsing API, ngăn chặn giả mạo thương hiệu và bảo vệ người dùng cuối tuyệt đối.
+          </p>
+</div>
+<!-- Security Status Badge Row -->
+<div class="p-space-md bg-surface-card-subtle rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-status-emerald text-[20px]">security</span>
+<span class="font-label-md text-label-md text-text-primary">Google Safe Browsing</span>
+</div>
+<span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-status-emerald">
+            100% Sạch
+          </span>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 4: INLINE INTERACTION CALLOUT BANNER -->
+<section class="w-full max-w-7xl mx-auto px-6 pb-space-xl">
+<div class="relative rounded-2xl p-space-lg md:p-space-xl text-on-primary shadow-xl overflow-hidden flex flex-col md:flex-row items-center justify-between gap-space-lg bg-brand-violet">
+<!-- Decorative ambient bubbles inside container -->
+
+
+<div class="space-y-2 relative z-10 max-w-xl text-center md:text-left">
+<h3 class="font-headline-lg text-headline-lg text-on-primary tracking-tight">Sẵn sàng tối ưu hoá liên kết của doanh nghiệp?</h3>
+<p class="font-body-md text-body-md text-on-primary-container">
+          Đăng ký tài khoản miễn phí để quản lý không giới hạn đường link, kích hoạt custom domain và tích hợp API webhook tốc độ cao.
+        </p>
+</div>
+<div class="flex flex-col sm:flex-row items-center gap-space-sm relative z-10 w-full sm:w-auto">
+<a class="w-full sm:w-auto px-space-lg py-3 rounded-lg bg-surface-card hover:bg-surface-card-subtle text-text-primary font-label-lg text-label-lg shadow-md transition-all text-center" data-path="dashboard" href="#">
+          Vào Dashboard ngay
+        </a>
+<a class="w-full sm:w-auto px-space-lg py-3 rounded-lg bg-on-primary/10 hover:bg-on-primary/20 text-on-primary font-label-lg text-label-lg transition-colors text-center" data-path="bang-gia" href="#">
+          Xem bảng giá
+        </a>
+</div>
+</div>
+</section>
+</div>
+<!-- CLIENT INTERACTIONS CONTROLLER -->
+<script>
+  function toggleAccordion(contentId, iconId) {
+    const el = document.getElementById(contentId);
+    const icon = document.getElementById(iconId);
+    if (!el || !icon) return;
+
+    if (el.classList.contains('hidden')) {
+      el.classList.remove('hidden');
+      icon.innerText = 'expand_less';
+    } else {
+      el.classList.add('hidden');
+      icon.innerText = 'expand_more';
+    }
+  }
+
+  function triggerCopyAction() {
+    const shortLink = "https://snaplink.io/ngan-cv";
+    navigator.clipboard.writeText(shortLink).then(() => {
+      showCopyToast();
+    }).catch(() => {
+      showCopyToast();
+    });
+  }
+
+  function showCopyToast() {
+    const toast = document.getElementById('copyToast');
+    const copyIcon = document.getElementById('copyIcon');
+    const copyText = document.getElementById('copyText');
+    const copyBtn = document.getElementById('copyMainBtn');
+
+    if (copyIcon && copyText) {
+      copyIcon.innerText = 'check';
+      copyText.innerText = 'Đã sao chép';
+      if (copyBtn) {
+        copyBtn.classList.add('text-status-emerald', 'bg-emerald-50');
+      }
+    }
+
+    if (toast) {
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+
+        if (copyIcon && copyText) {
+          copyIcon.innerText = 'content_copy';
+          copyText.innerText = 'Sao chép';
+          if (copyBtn) {
+            copyBtn.classList.remove('text-status-emerald', 'bg-emerald-50');
+          }
+        }
+      }, 2400);
+    }
+  }
+
+  function toggleQrModal(show) {
+    const modal = document.getElementById('qrModal');
+    if (!modal) return;
+    if (show) {
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.classList.add('opacity-100');
+      }, 10);
+    } else {
+      modal.classList.remove('opacity-100');
+      modal.classList.add('opacity-0');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 200);
+    }
+  }
+
+  function handleShortenSubmit() {
+    const submitBtn = document.getElementById('submitShortenBtn');
+    const originalContent = submitBtn.innerHTML;
+
+    // Simulate API loading state
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `
+      <svg class="animate-spin h-5 w-5 text-on-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span>Đang rút gọn...</span>
+    `;
+
+    setTimeout(() => {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalContent;
+      const resCard = document.getElementById('resultCard');
+      if (resCard) {
+        resCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      showCopyToast();
+    }, 450);
+  }
+</script></main><footer class="w-full bg-surface-card/90 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)] mt-space-xl"><div class="max-w-7xl mx-auto px-6 py-space-lg flex flex-col md:flex-row items-center justify-between gap-space-md"><div class="flex items-center gap-space-sm"><span class="font-body-sm text-body-sm text-text-secondary">© 2026 SnapLink. All rights reserved.</span></div><div class="flex items-center gap-space-md"><a class="font-label-md text-label-md text-text-secondary hover:text-on-surface hover:bg-surface-container-high px-2 py-1 rounded transition-colors" data-path="dieu-khoan" href="#">Điều khoản</a><a class="font-label-md text-label-md text-text-secondary hover:text-on-surface hover:bg-surface-container-high px-2 py-1 rounded transition-colors" data-path="bao-mat" href="#">Bảo mật</a><a class="font-label-md text-label-md text-text-secondary hover:text-on-surface hover:bg-surface-container-high px-2 py-1 rounded transition-colors" data-path="ho-tro" href="#">Hỗ trợ</a><a class="inline-flex items-center gap-1.5 font-label-md text-label-md text-text-secondary hover:text-on-surface hover:bg-surface-container-high px-2 py-1 rounded transition-colors" data-path="status-api" href="#"><span class="w-2 h-2 rounded-full bg-status-emerald animate-pulse"></span>Status API</a></div></div></footer>
+
+</body></html>

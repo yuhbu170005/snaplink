@@ -85,3 +85,70 @@
      - [JwtTokenProviderTest.java](../src/test/java/com/snaplink/config/security/JwtTokenProviderTest.java): Kiểm thử sinh token và giải mã claims.
      - Chạy `./mvnw test` $\rightarrow$ **9/9 tests passed (0 lỗi, BUILD SUCCESS)**.
 
+---
+
+### 📅 Ngày 5: API Rút gọn URL (POST /api/urls) & Base62 Encoding
+- **Thời gian hoàn thành:** 23/09/2026
+- **Trạng thái:** ✅ **Hoàn thành**
+- **Nội dung công việc đã làm:**
+  1. **Xây dựng Thuật toán & Tiện ích (Utils):**
+     - [Base62.java](../src/main/java/com/snaplink/util/Base62.java): Thuật toán chuyển đổi hai chiều Base62 (`encode`/`decode`) trên tập ký tự `0-9a-zA-Z`, tích hợp `BASE_OFFSET` để chuỗi sinh ra luôn có độ dài tối thiểu 5–6 ký tự.
+     - [UrlValidator.java](../src/main/java/com/snaplink/util/UrlValidator.java): Validate định dạng URL chuẩn (bắt buộc `http`/`https`), chặn các scheme nguy hiểm (`javascript:`, `data:`, `file:`, v.v.), chặn danh sách **Reserved Keywords** (`api`, `auth`, `swagger`, `admin`, `login`, `register`, `urls`, `health`...) để tránh xung đột routing.
+  2. **Xây dựng DTOs & Cấu hình:**
+     - [CreateUrlRequest.java](../src/main/java/com/snaplink/dto/request/CreateUrlRequest.java): Nhận `originalUrl`, `customAlias` (tuỳ chọn), `expiresAt` (tuỳ chọn).
+     - [UrlResponse.java](../src/main/java/com/snaplink/dto/response/UrlResponse.java): Trả về `id`, `shortCode`, `shortUrl` (ghép full domain), `originalUrl`, `customAlias`, `expiresAt`, `createdAt`, `isActive`, `userId`.
+     - [application.yml](../src/main/resources/application.yml): Thêm cấu hình `app.base-url`.
+  3. **Triển khai Tầng Service & Controller:**
+     - [UrlService.java](../src/main/java/com/snaplink/service/UrlService.java):
+       - Tạo link rút gọn tự động bằng Base62 cho người dùng chưa đăng nhập (Guest).
+       - Tự động liên kết `user_id` nếu người dùng đã đăng nhập (Bearer JWT).
+       - Hỗ trợ **Custom Alias** độc quyền cho người dùng đã đăng nhập kèm kiểm tra trùng lặp trong DB.
+       - Hỗ trợ **Expiration Date** với validation thời gian phải ở tương lai.
+     - [UrlController.java](../src/main/java/com/snaplink/controller/UrlController.java): Cung cấp endpoint `POST /api/urls`.
+     - [SecurityConfig.java](../src/main/java/com/snaplink/config/security/SecurityConfig.java): Cho phép `POST /api/urls` truy cập công khai (permitAll).
+  4. **Viết Unit Tests & Xác minh:**
+     - [Base62Test.java](../src/test/java/com/snaplink/util/Base62Test.java): Kiểm thử mã hoá/giải mã và độ dài chuỗi.
+     - [UrlValidatorTest.java](../src/test/java/com/snaplink/util/UrlValidatorTest.java): Kiểm thử URL hợp lệ, URL độc hại, custom alias đúng/sai format và từ khoá cấm.
+     - [UrlServiceTest.java](../src/test/java/com/snaplink/service/UrlServiceTest.java): Kiểm thử tạo link guest, link user đăng nhập, custom alias, bắt lỗi trùng alias, bắt lỗi guest đặt alias, bắt lỗi expiration date trong quá khứ.
+     - Chạy `./mvnw test` $\rightarrow$ **39/39 tests passed (0 lỗi, BUILD SUCCESS)**.
+
+---
+
+### 📅 Ngày 6: Quản lý Danh sách URL Cá nhân, Phân trang & Phân quyền Xoá
+- **Thời gian hoàn thành:** 23/09/2026
+- **Trạng thái:** ✅ **Hoàn thành**
+- **Nội dung công việc đã làm:**
+  1. **Xây dựng DTO Phân trang Chuẩn:**
+     - [PageResponse.java](../src/main/java/com/snaplink/dto/response/PageResponse.java): Generic DTO chuẩn hoá dữ liệu phân trang (`content`, `pageNumber`, `pageSize`, `totalElements`, `totalPages`, `last`).
+  2. **Nâng cấp Tầng Repository & Service:**
+     - [UrlRepository.java](../src/main/java/com/snaplink/repository/UrlRepository.java): Thêm truy vấn phân trang `Page<Url> findByUserId(Long userId, Pageable pageable)`.
+     - [UrlService.java](../src/main/java/com/snaplink/service/UrlService.java):
+       - `getMyUrls`: Lấy danh sách link của user đang đăng nhập (hỗ trợ phân trang, sắp xếp theo ngày tạo mới nhất).
+       - `getUrlById`: Xem chi tiết 1 link (bảo vệ quyền sở hữu).
+       - `deleteUrl`: Xoá link (kiểm tra chặt chẽ quyền sở hữu qua `findByIdAndUserId`, ném `ResourceNotFoundException` nếu không tìm thấy hoặc không thuộc về user).
+       - `toggleUrlStatus`: Bật/tắt trạng thái hoạt động (`isActive = !isActive`) của link.
+  3. **Triển khai REST APIs:**
+     - [UrlController.java](../src/main/java/com/snaplink/controller/UrlController.java):
+       - `GET /api/urls`: Lấy danh sách link của user (yêu cầu JWT, phân trang mặc định 10 phần tử/trang).
+       - `GET /api/urls/{id}`: Xem chi tiết link.
+       - `DELETE /api/urls/{id}`: Xoá link (trả về `204 No Content`).
+       - `PATCH /api/urls/{id}/status`: Đổi trạng thái kích hoạt link.
+
+---
+
+### 📅 Ngày 7: Bộ Kiểm thử Tự động Toàn diện & Hoàn thiện Tuần 1
+- **Thời gian hoàn thành:** 23/09/2026
+- **Trạng thái:** ✅ **Hoàn thành**
+- **Nội dung công việc đã làm:**
+  1. **Mở rộng Unit & Integration Tests:**
+     - [UrlControllerTest.java](../src/test/java/com/snaplink/controller/UrlControllerTest.java): Kiểm thử MockMvc toàn diện các HTTP Status Code và Response Body cho `POST /api/urls`, `GET /api/urls`, `GET /api/urls/{id}`, `DELETE /api/urls/{id}`, `PATCH /api/urls/{id}/status`.
+     - [UrlServiceTest.java](../src/test/java/com/snaplink/service/UrlServiceTest.java): Bao quát 100% các kịch bản CRUD, phân trang, bảo vệ quyền sở hữu dữ liệu người dùng, xử lý ngoại lệ `ConflictException` và `ResourceNotFoundException`.
+  2. **Chạy Kiểm thử Toàn bộ Hệ thống:**
+     - Tổng cộng **51 tests** (Bao gồm Auth, JWT, Security, URL CRUD, Base62, Validation).
+     - Kết quả: **51/51 tests passed 100% (0 lỗi, BUILD SUCCESS)**.
+  3. **Tổng kết Tuần 1:**
+     - Hoàn thành trọn vẹn mục tiêu Nền móng (Setup, Supabase PostgreSQL, Spring Security JWT, CRUD Short URL, Base62).
+     - Sẵn sàng chuyển sang Tuần 2 (Redirect + Redis Cache-Aside + Rate Limiting).
+
+
+

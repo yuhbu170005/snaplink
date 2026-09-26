@@ -1,0 +1,567 @@
+<!DOCTYPE html><html lang="vi" style=""><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><title>SnapLink - URL Shortener &amp; Analytics Platform</title><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"><style>body, h1, h2, h3, button, input, th, td, table, .font-headline-lg, .font-headline-sm, .font-display-hero, .font-label-lg, .font-label-md, .font-body-md, .font-body-sm, .font-code-sm { font-family: 'JetBrains Mono', monospace !important; }</style><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"surface-container":"#eaedff","inverse-primary":"#c3c0ff","primary-fixed":"#e2dfff","outline":"#777587","on-background":"#131b2e","primary-fixed-dim":"#c3c0ff","surface":"#faf8ff","brand-purple-glow":"#9855FF","secondary-container":"#8a4cfc","on-tertiary-fixed-variant":"#005236","brand-purple-light":"#C49BFF","surface-container-high":"#e2e7ff","tertiary-container":"#006e4b","brand-violet":"#7C3AED","error-container":"#ffdad6","primary":"#3525cd","inverse-on-surface":"#eef0ff","on-secondary-container":"#fffbff","surface-bright":"#faf8ff","text-primary":"#0F172A","secondary-fixed":"#eaddff","surface-container-lowest":"#ffffff","surface-tint":"#4d44e3","tertiary-fixed":"#6ffbbe","surface-container-low":"#f2f3ff","surface-variant":"#dae2fd","on-primary-fixed-variant":"#3323cc","on-tertiary-fixed":"#002113","status-rose":"#F43F5E","status-emerald":"#10B981","tertiary-fixed-dim":"#4edea3","error":"#ba1a1a","secondary-fixed-dim":"#d2bbff","border-subtle":"#E2E8F0","outline-variant":"#c7c4d8","text-secondary":"#64748B","on-secondary":"#ffffff","on-error-container":"#93000a","surface-card":"#FFFFFF","surface-card-subtle":"#F1F5F9","on-primary-container":"#dad7ff","text-muted":"#94A3B8","primary-container":"#4f46e5","brand-indigo":"#4F46E5","surface-container-highest":"#dae2fd","on-tertiary":"#ffffff","on-primary-fixed":"#0f0069","canvas-bg":"#F8FAFC","background":"#faf8ff","status-amber":"#F59E0B","on-secondary-fixed-variant":"#5a00c6","on-secondary-fixed":"#25005a","on-surface-variant":"#464555","secondary":"#712ae2","tertiary":"#005338","border-hover":"#CBD5E1","on-error":"#ffffff","on-surface":"#131b2e","inverse-surface":"#283044","surface-dim":"#d2d9f4","on-tertiary-container":"#67f4b7","on-primary":"#ffffff"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-lg":"1.5rem","space-md":"1rem","space-sm":"0.5rem","gutter-mobile":"1rem","margin-mobile":"1rem","gutter":"1.5rem","space-xl":"2.5rem","space-xs":"0.25rem","margin":"2rem"},"fontFamily":{"headline-lg":["Outfit"],"headline-sm":["Outfit"],"label-lg":["Inter"],"body-md":["Inter"],"display-hero":["Outfit"],"headline-md":["Outfit"],"body-lg":["Inter"],"display-hero-mobile":["Outfit"],"label-md":["Inter"],"body-sm":["Inter"],"code-sm":["Inter"]},"fontSize":{"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-sm":["20px",{"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"600"}],"label-lg":["14px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"600"}],"body-md":["15px",{"lineHeight":"24px","fontWeight":"400"}],"display-hero":["52px",{"lineHeight":"60px","letterSpacing":"-0.03em","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"-0.015em","fontWeight":"600"}],"body-lg":["18px",{"lineHeight":"28px","letterSpacing":"-0.005em","fontWeight":"400"}],"display-hero-mobile":["34px",{"lineHeight":"42px","letterSpacing":"-0.02em","fontWeight":"700"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"body-sm":["13px",{"lineHeight":"20px","fontWeight":"400"}],"code-sm":["13px",{"lineHeight":"18px","letterSpacing":"-0.01em","fontWeight":"500"}]}}}};</script></head><body class="min-h-screen font-body-md text-on-surface relative antialiased selection:bg-brand-violet/10 selection:text-brand-violet bg-surface-card-lowest"><header class="fixed top-0 inset-x-0 z-50 bg-surface-card/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 max-w-7xl mx-auto px-6 flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md shrink-0"><a class="flex items-center gap-space-sm group" data-path="trang-chu" href="#"><img alt="SnapLink Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1UCM6d_3vHWl1Kx6GEhf56_JHJ3m7u5-fU0w-tbcjc9lvD9LqVRKjqx7qTjvouSuvIYs9HruUHOfdixBISS7XtahR0aTV5xGdodeoOxdlV80rLqgRT8IYzwTCjIdKI7YxgmG9QFuPF5FUx_PsRQejTC4b-jTdL9EcvnWKAGA0JCVgphn8ICgSSQ6-lujGcRqLegpTE-T0B5wiUkBfKAz9dbnQrQcybfcDRC61FOvaemxFR_ymCMscbjq1AD"><span class="font-headline-sm text-headline-sm text-text-primary tracking-tight group-hover:text-primary transition-colors">SnapLink</span></a></div><nav class="hidden lg:flex items-center gap-space-xs p-1 rounded-xl" data-active-classes="text-primary font-semibold bg-surface-container-low"><a class="px-space-md py-space-xs rounded-lg font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="trang-chu" href="#">Trang Chủ</a><a aria-current="page" class="px-space-md py-space-xs rounded-lg transition-colors text-primary font-semibold bg-surface-container-low" data-path="dashboard" href="#">Dashboard</a><a class="px-space-md py-space-xs rounded-lg font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="thong-ke" href="#">Thống Kê</a><a class="px-space-md py-space-xs rounded-lg font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="tai-lieu-api" href="#">Tài Liệu API</a><a class="px-space-md py-space-xs rounded-lg font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="bang-gia" href="#">Bảng Giá</a></nav><div class="flex items-center gap-space-sm"><button class="inline-flex items-center gap-space-xs px-space-md py-2 rounded-lg text-on-primary font-label-lg text-label-lg shadow-[0_4px_14px_0_rgba(124,58,237,0.35)] hover:brightness-105 active:scale-98 transition-all shrink-0 bg-brand-violet" type="button"><span class="material-symbols-outlined text-[18px]">add_link</span><span class="">+ Rút gọn nhanh</span></button><button aria-label="Thông báo" class="relative p-2 rounded-lg text-text-secondary hover:text-on-surface hover:bg-surface-card-subtle transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-status-emerald ring-2 ring-surface-card"></span></button><div class="flex items-center gap-space-xs pl-space-xs"><button class="flex items-center gap-2 p-1 rounded-full hover:bg-surface-card-subtle transition-colors group" type="button"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-border-subtle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5D31IoIsznqoZW-w8O2wGNvf5jaKUewCqtGpplKUhem8KhgdRLbz7Q9HOJNukAzej5um2DfB0FTJaKxpxCghaTM4uU-r-o44P4CBiF9gXP4_RgnpjUNIStUbky6b3rlSkRRNQn7SWsN2reDcfs34_FsVkUho10cfqD3KZq8rG5j6gSZNo-u9eRJDfwdOp4nz4ry0qfCbx8-BTk5zH1ZJZfAYxq5zvfsT9Jthjuo6oEz3iVEsUQTFCDg"><div class="hidden md:flex flex-col text-left"><span class="font-label-md text-label-md text-text-primary group-hover:text-primary transition-colors">Ngân Kim</span></div><span class="material-symbols-outlined text-text-muted text-[18px]">expand_more</span></button></div></div></div></header><main class="w-full pt-16"><div class="flex flex-col w-full">
+<div class="w-full max-w-7xl mx-auto px-6 py-space-xl flex flex-col gap-space-lg">
+<!-- Top Action & Workspace Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md bg-surface-card p-space-lg rounded-xl shadow-sm">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-space-xs text-brand-violet font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px]">link</span>
+<span class="tracking-wider uppercase">Trung tâm điều khiển</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-text-primary tracking-tight">Quản lý Liên Kết</h1>
+<p class="font-body-md text-body-md text-text-secondary">Theo dõi, chỉnh sửa và quản lý tất cả các short link đã tạo của bạn</p>
+</div>
+<div class="flex flex-wrap items-center gap-space-sm">
+<!-- Search Input Bar -->
+<div class="relative flex items-center min-w-[260px] bg-surface-card-subtle rounded-lg px-3 py-2 text-text-secondary focus-within:text-brand-indigo focus-within:bg-surface-card shadow-sm transition-all">
+<span class="material-symbols-outlined text-[18px] mr-2 text-text-muted">search</span>
+<input class="bg-transparent border-0 outline-none w-full font-body-sm text-body-sm text-text-primary placeholder:text-text-muted" id="searchLinksInput" placeholder="Tìm kiếm link, alias, URL..." type="text">
+</div>
+<!-- Filter Dropdown Trigger -->
+<div class="relative">
+<button class="inline-flex items-center gap-2 px-space-md py-2 rounded-lg bg-surface-card-subtle hover:bg-surface-container text-text-primary font-label-md text-label-md transition-colors" id="filterButton" type="button">
+<span class="material-symbols-outlined text-[18px] text-text-secondary">filter_list</span>
+<span id="currentFilterLabel" class="">Tất cả</span>
+<span class="material-symbols-outlined text-[16px] text-text-muted">expand_more</span>
+</button>
+<div class="hidden absolute right-0 mt-1 w-44 bg-surface-card rounded-lg shadow-xl z-20 py-1" id="filterDropdown">
+<button class="w-full text-left px-3 py-2 text-label-md text-text-primary hover:bg-surface-card-subtle flex items-center justify-between" onclick="setFilter('Tất cả')" type="button">
+<span class="">Tất cả</span>
+<span class="material-symbols-outlined text-[16px] text-status-emerald">check</span>
+</button>
+<button class="w-full text-left px-3 py-2 text-label-md text-text-primary hover:bg-surface-card-subtle flex items-center justify-between" onclick="setFilter('Đang hoạt động')" type="button">
+<span class="">Đang hoạt động</span>
+</button>
+<button class="w-full text-left px-3 py-2 text-label-md text-text-primary hover:bg-surface-card-subtle flex items-center justify-between" onclick="setFilter('Hết hạn')" type="button">
+<span class="">Hết hạn</span>
+</button>
+</div>
+</div>
+<!-- Primary CTA: Create Link -->
+<button class="inline-flex items-center gap-space-xs px-space-md py-2.5 rounded-lg text-on-primary font-label-lg text-label-lg shadow-md hover:brightness-105 active:scale-98 transition-all shrink-0 cursor-pointer bg-brand-violet" onclick="openCreateModal()" type="button">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+<span class="">+ Tạo Link Mới</span>
+</button>
+</div>
+</div>
+<!-- 3 Metric KPI Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- KPI 1: Tổng số link -->
+<div class="bg-surface-card rounded-xl p-space-lg shadow-sm flex flex-col justify-between transition-transform hover:-translate-y-0.5">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md uppercase tracking-wider text-text-secondary">Tổng Số Link</span>
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-brand-violet">
+<span class="material-symbols-outlined text-[22px]">link</span>
+</div>
+</div>
+<div class="mt-4 flex items-baseline justify-between">
+<span class="font-headline-lg text-headline-lg text-text-primary">12</span>
+<span class="inline-flex items-center gap-1 font-label-md text-label-md text-brand-violet bg-surface-container px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+            +3 tuần này
+          </span>
+</div>
+<div class="w-full bg-surface-card-subtle h-1.5 rounded-full mt-3 overflow-hidden">
+<div class="bg-brand-violet h-full rounded-full" style="width: 75%"></div>
+</div>
+</div>
+<!-- KPI 2: Tổng lượt Click -->
+<div class="bg-surface-card rounded-xl p-space-lg shadow-sm flex flex-col justify-between transition-transform hover:-translate-y-0.5">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md uppercase tracking-wider text-text-secondary">Tổng Lượt Click</span>
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-status-emerald">
+<span class="material-symbols-outlined text-[22px]">bar_chart</span>
+</div>
+</div>
+<div class="mt-4 flex items-baseline justify-between">
+<span class="font-headline-lg text-headline-lg text-text-primary">1,420</span>
+<span class="inline-flex items-center gap-1 font-label-md text-label-md text-status-emerald bg-surface-container-low px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span>
+            +18.4% tăng trưởng
+          </span>
+</div>
+<div class="w-full bg-surface-card-subtle h-1.5 rounded-full mt-3 overflow-hidden">
+<div class="bg-status-emerald h-full rounded-full" style="width: 64%"></div>
+</div>
+</div>
+<!-- KPI 3: Link Đang Hoạt Động -->
+<div class="bg-surface-card rounded-xl p-space-lg shadow-sm flex flex-col justify-between transition-transform hover:-translate-y-0.5">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md uppercase tracking-wider text-text-secondary">Link Đang Hoạt Động</span>
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">bolt</span>
+</div>
+</div>
+<div class="mt-4 flex items-baseline justify-between">
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg text-text-primary">10</span>
+<span class="font-body-md text-body-md text-text-muted">/ 12 link</span>
+</div>
+<span class="inline-flex items-center gap-1.5 font-label-md text-label-md text-status-emerald bg-surface-container-low px-2.5 py-0.5 rounded-full">
+<span class="w-2 h-2 rounded-full bg-status-emerald animate-ping"></span>
+            83.3% Active
+          </span>
+</div>
+<div class="w-full bg-surface-card-subtle h-1.5 rounded-full mt-3 overflow-hidden">
+<div class="bg-brand-indigo h-full rounded-full" style="width: 83.3%"></div>
+</div>
+</div>
+</div>
+<!-- Data Table Container (UrlTable) -->
+<div class="bg-surface-card rounded-xl shadow-sm overflow-hidden flex flex-col">
+<!-- Table Header Title Row -->
+<div class="p-space-md px-space-lg bg-surface-card flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-brand-violet text-[20px]">dataset</span>
+<h2 class="font-headline-sm text-headline-sm text-text-primary tracking-tight">Danh Sách Liên Kết</h2>
+</div>
+<div class="inline-flex items-center gap-2">
+<span class="font-label-md text-label-md text-text-muted">Tự động cập nhật mỗi 30s</span>
+<span class="inline-block w-2 h-2 rounded-full bg-status-emerald"></span>
+</div>
+</div>
+<!-- Table Element -->
+<div class="w-full overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-card-subtle text-text-secondary font-label-md text-label-md uppercase tracking-wider">
+<th class="py-3 px-space-lg" scope="col">Mã Ngắn</th>
+<th class="py-3 px-space-md" scope="col">Link Gốc</th>
+<th class="py-3 px-space-md" scope="col">Ngày Tạo</th>
+<th class="py-3 px-space-md" scope="col">Hạn Dùng</th>
+<th class="py-3 px-space-md text-center" scope="col">Trạng Thái</th>
+<th class="py-3 px-space-lg text-right" scope="col">Hành Động</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm text-text-primary" id="urlTableBody">
+<!-- Row 1: cv -->
+<tr class="hover:bg-surface-card-subtle transition-colors group" data-id="1">
+<td class="py-4 px-space-lg">
+<a class="inline-flex items-center gap-1.5 font-headline-sm text-label-lg font-semibold text-brand-violet hover:text-brand-indigo group/link" href="https://snaplink.io/cv" rel="noopener noreferrer" target="_blank">
+<span class="">snaplink.io/cv</span>
+<span class="material-symbols-outlined text-[15px] opacity-70 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform">open_in_new</span>
+</a>
+</td>
+<td class="py-4 px-space-md max-w-xs md:max-w-sm">
+<div class="relative group/tooltip">
+<span class="truncate block text-text-secondary font-code-sm text-code-sm">https://drive.google.com/file/d/1Xy9z-cv-resume-kimngan-lead-engineer-2026</span>
+<div class="hidden group-hover/tooltip:block absolute left-0 bottom-full mb-1 z-30 px-3 py-1.5 bg-inverse-surface text-inverse-on-surface font-code-sm text-code-sm rounded shadow-lg whitespace-nowrap max-w-md truncate">
+                    https://drive.google.com/file/d/1Xy9z-cv-resume-kimngan-lead-engineer-2026
+                  </div>
+</div>
+</td>
+<td class="py-4 px-space-md text-text-secondary whitespace-nowrap font-code-sm">20/09/2026</td>
+<td class="py-4 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 text-text-secondary font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] text-text-muted">all_inclusive</span>
+                  Không hạn
+                </span>
+</td>
+<td class="py-4 px-space-md text-center">
+<!-- Custom Switch ON -->
+<button aria-checked="true" class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full bg-status-emerald transition-colors duration-200 ease-in-out focus:outline-none" onclick="toggleStatus(this)" role="switch" type="button">
+<span class="sr-only">Kích hoạt liên kết</span>
+<span class="translate-x-5 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-surface-card shadow-sm transition duration-200 ease-in-out my-0.5 ml-0.5"></span>
+</button>
+</td>
+<td class="py-4 px-space-lg text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-1">
+<button class="p-2 rounded-lg text-text-secondary hover:text-brand-violet hover:bg-surface-container transition-colors" onclick="copyShortUrl('https://snaplink.io/cv', this)" title="Sao chép liên kết" type="button">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+<a class="p-2 rounded-lg text-text-secondary hover:text-status-emerald hover:bg-surface-container-low transition-colors inline-flex" href="#analytics-cv" title="Xem thống kê">
+<span class="material-symbols-outlined text-[18px]">query_stats</span>
+</a>
+<button class="p-2 rounded-lg text-text-secondary hover:text-error hover:bg-error-container/20 transition-colors" onclick="confirmDelete('snaplink.io/cv', 1)" title="Xoá liên kết" type="button">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2: sale -->
+<tr class="hover:bg-surface-card-subtle transition-colors group" data-id="2">
+<td class="py-4 px-space-lg">
+<a class="inline-flex items-center gap-1.5 font-headline-sm text-label-lg font-semibold text-brand-violet hover:text-brand-indigo group/link" href="https://snaplink.io/sale" rel="noopener noreferrer" target="_blank">
+<span class="">snaplink.io/sale</span>
+<span class="material-symbols-outlined text-[15px] opacity-70 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform">open_in_new</span>
+</a>
+</td>
+<td class="py-4 px-space-md max-w-xs md:max-w-sm">
+<div class="relative group/tooltip">
+<span class="truncate block text-text-secondary font-code-sm text-code-sm">https://shopee.vn/item-mega-sale-super-brand-day-vouchers-special-discount-october</span>
+<div class="hidden group-hover/tooltip:block absolute left-0 bottom-full mb-1 z-30 px-3 py-1.5 bg-inverse-surface text-inverse-on-surface font-code-sm text-code-sm rounded shadow-lg whitespace-nowrap max-w-md truncate">
+                    https://shopee.vn/item-mega-sale-super-brand-day-vouchers-special-discount-october
+                  </div>
+</div>
+</td>
+<td class="py-4 px-space-md text-text-secondary whitespace-nowrap font-code-sm">21/09/2026</td>
+<td class="py-4 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-label-md text-label-md bg-amber-50 text-status-amber">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+                  30/09/2026 (Sắp hết hạn)
+                </span>
+</td>
+<td class="py-4 px-space-md text-center">
+<!-- Custom Switch ON -->
+<button aria-checked="true" class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full bg-status-emerald transition-colors duration-200 ease-in-out focus:outline-none" onclick="toggleStatus(this)" role="switch" type="button">
+<span class="sr-only">Kích hoạt liên kết</span>
+<span class="translate-x-5 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-surface-card shadow-sm transition duration-200 ease-in-out my-0.5 ml-0.5"></span>
+</button>
+</td>
+<td class="py-4 px-space-lg text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-1">
+<button class="p-2 rounded-lg text-text-secondary hover:text-brand-violet hover:bg-surface-container transition-colors" onclick="copyShortUrl('https://snaplink.io/sale', this)" title="Sao chép liên kết" type="button">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+<a class="p-2 rounded-lg text-text-secondary hover:text-status-emerald hover:bg-surface-container-low transition-colors inline-flex" href="#analytics-sale" title="Xem thống kê">
+<span class="material-symbols-outlined text-[18px]">query_stats</span>
+</a>
+<button class="p-2 rounded-lg text-text-secondary hover:text-error hover:bg-error-container/20 transition-colors" onclick="confirmDelete('snaplink.io/sale', 2)" title="Xoá liên kết" type="button">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3: 7x9w -->
+<tr class="hover:bg-surface-card-subtle transition-colors group opacity-80" data-id="3">
+<td class="py-4 px-space-lg">
+<a class="inline-flex items-center gap-1.5 font-headline-sm text-label-lg font-semibold text-text-secondary hover:text-brand-indigo group/link" href="https://snaplink.io/7x9w" rel="noopener noreferrer" target="_blank">
+<span class="">snaplink.io/7x9w</span>
+<span class="material-symbols-outlined text-[15px] opacity-70 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform">open_in_new</span>
+</a>
+</td>
+<td class="py-4 px-space-md max-w-xs md:max-w-sm">
+<div class="relative group/tooltip">
+<span class="truncate block text-text-muted font-code-sm text-code-sm">https://medium.com/@dev-guide/full-stack-architecture-deep-dive-scalability-patterns</span>
+<div class="hidden group-hover/tooltip:block absolute left-0 bottom-full mb-1 z-30 px-3 py-1.5 bg-inverse-surface text-inverse-on-surface font-code-sm text-code-sm rounded shadow-lg whitespace-nowrap max-w-md truncate">
+                    https://medium.com/@dev-guide/full-stack-architecture-deep-dive-scalability-patterns
+                  </div>
+</div>
+</td>
+<td class="py-4 px-space-md text-text-muted whitespace-nowrap font-code-sm">22/09/2026</td>
+<td class="py-4 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 text-text-muted font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px]">all_inclusive</span>
+                  Không hạn
+                </span>
+</td>
+<td class="py-4 px-space-md text-center">
+<!-- Custom Switch OFF (Inactive) -->
+<button aria-checked="false" class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full bg-outline-variant transition-colors duration-200 ease-in-out focus:outline-none" onclick="toggleStatus(this)" role="switch" type="button">
+<span class="sr-only">Kích hoạt liên kết</span>
+<span class="translate-x-0 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-surface-card shadow-sm transition duration-200 ease-in-out my-0.5 ml-0.5"></span>
+</button>
+</td>
+<td class="py-4 px-space-lg text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-1">
+<button class="p-2 rounded-lg text-text-secondary hover:text-brand-violet hover:bg-surface-container transition-colors" onclick="copyShortUrl('https://snaplink.io/7x9w', this)" title="Sao chép liên kết" type="button">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+<a class="p-2 rounded-lg text-text-secondary hover:text-status-emerald hover:bg-surface-container-low transition-colors inline-flex" href="#analytics-7x9w" title="Xem thống kê">
+<span class="material-symbols-outlined text-[18px]">query_stats</span>
+</a>
+<button class="p-2 rounded-lg text-text-secondary hover:text-error hover:bg-error-container/20 transition-colors" onclick="confirmDelete('snaplink.io/7x9w', 3)" title="Xoá liên kết" type="button">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4: launch -->
+<tr class="hover:bg-surface-card-subtle transition-colors group" data-id="4">
+<td class="py-4 px-space-lg">
+<a class="inline-flex items-center gap-1.5 font-headline-sm text-label-lg font-semibold text-brand-violet hover:text-brand-indigo group/link" href="https://snaplink.io/launch" rel="noopener noreferrer" target="_blank">
+<span class="">snaplink.io/launch</span>
+<span class="material-symbols-outlined text-[15px] opacity-70 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform">open_in_new</span>
+</a>
+</td>
+<td class="py-4 px-space-md max-w-xs md:max-w-sm">
+<div class="relative group/tooltip">
+<span class="truncate block text-text-secondary font-code-sm text-code-sm">https://producthunt.com/posts/snaplink-ai-intelligent-url-telemetry-engine</span>
+<div class="hidden group-hover/tooltip:block absolute left-0 bottom-full mb-1 z-30 px-3 py-1.5 bg-inverse-surface text-inverse-on-surface font-code-sm text-code-sm rounded shadow-lg whitespace-nowrap max-w-md truncate">
+                    https://producthunt.com/posts/snaplink-ai-intelligent-url-telemetry-engine
+                  </div>
+</div>
+</td>
+<td class="py-4 px-space-md text-text-secondary whitespace-nowrap font-code-sm">23/09/2026</td>
+<td class="py-4 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 text-text-secondary font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] text-text-muted">all_inclusive</span>
+                  Không hạn
+                </span>
+</td>
+<td class="py-4 px-space-md text-center">
+<!-- Custom Switch ON -->
+<button aria-checked="true" class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full bg-status-emerald transition-colors duration-200 ease-in-out focus:outline-none" onclick="toggleStatus(this)" role="switch" type="button">
+<span class="sr-only">Kích hoạt liên kết</span>
+<span class="translate-x-5 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-surface-card shadow-sm transition duration-200 ease-in-out my-0.5 ml-0.5"></span>
+</button>
+</td>
+<td class="py-4 px-space-lg text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-1">
+<button class="p-2 rounded-lg text-text-secondary hover:text-brand-violet hover:bg-surface-container transition-colors" onclick="copyShortUrl('https://snaplink.io/launch', this)" title="Sao chép liên kết" type="button">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+<a class="p-2 rounded-lg text-text-secondary hover:text-status-emerald hover:bg-surface-container-low transition-colors inline-flex" href="#analytics-launch" title="Xem thống kê">
+<span class="material-symbols-outlined text-[18px]">query_stats</span>
+</a>
+<button class="p-2 rounded-lg text-text-secondary hover:text-error hover:bg-error-container/20 transition-colors" onclick="confirmDelete('snaplink.io/launch', 4)" title="Xoá liên kết" type="button">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Bar -->
+<div class="p-space-md px-space-lg bg-surface-card flex flex-col sm:flex-row items-center justify-between gap-space-md">
+<span class="font-body-sm text-body-sm text-text-secondary">
+          Hiển thị <span class="font-semibold text-text-primary">1-4</span> trên tổng số <span class="font-semibold text-text-primary">12</span> liên kết
+        </span>
+<div class="flex items-center gap-space-sm">
+<button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-surface-card-subtle text-text-muted cursor-not-allowed font-label-md text-label-md" disabled="" type="button">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+            Trang Trước
+          </button>
+<div class="flex items-center px-3 py-1 bg-surface-container rounded-lg font-label-md text-label-md text-brand-violet font-semibold">
+            Trang 1 / 3
+          </div>
+<button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-surface-card-subtle hover:bg-surface-container text-text-primary hover:text-brand-violet font-label-md text-label-md transition-colors" type="button">
+            Trang Sau
+            <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Delete Confirmation Modal (Tier 3 Elevation) -->
+<div class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/40 backdrop-blur-sm" id="deleteModal">
+<div class="bg-surface-card rounded-xl max-w-md w-full p-space-lg shadow-xl flex flex-col gap-space-md transform scale-95 transition-all">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-error-container flex items-center justify-center text-error shrink-0">
+<span class="material-symbols-outlined text-[24px]">warning</span>
+</div>
+<div class="flex flex-col">
+<h3 class="font-headline-sm text-headline-sm text-text-primary">Xác nhận xoá liên kết</h3>
+<span class="font-body-sm text-body-sm text-text-secondary">Hành động này không thể hoàn tác.</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-text-primary">
+        Bạn có chắc chắn muốn xoá liên kết <code class="font-code-sm text-code-sm px-1.5 py-0.5 rounded bg-surface-card-subtle text-error font-semibold" id="deleteTargetCode">snaplink.io/target</code> khỏi hệ thống không? Tất cả lượt click chuyển tiếp sẽ bị ngắt kết nối.
+      </p>
+<div class="flex items-center justify-end gap-space-sm mt-2">
+<button class="px-space-md py-2 rounded-lg bg-surface-card-subtle hover:bg-surface-container-high text-text-secondary hover:text-text-primary font-label-lg text-label-lg transition-colors cursor-pointer" onclick="closeDeleteModal()" type="button">
+          Huỷ bỏ
+        </button>
+<button class="px-space-md py-2 rounded-lg bg-error text-on-error font-label-lg text-label-lg shadow-sm hover:brightness-110 active:scale-98 transition-all cursor-pointer inline-flex items-center gap-1.5" id="confirmDeleteBtn" type="button">
+<span class="material-symbols-outlined text-[18px]">delete_forever</span>
+<span class="">Xác nhận xoá</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Create Link Quick Modal (Optional helper) -->
+<div class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/40 backdrop-blur-sm" id="createModal">
+<div class="bg-surface-card rounded-xl max-w-lg w-full p-space-lg shadow-xl flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-brand-violet">add_link</span>
+<h3 class="font-headline-sm text-headline-sm text-text-primary">Tạo Short Link Mới</h3>
+</div>
+<button class="text-text-muted hover:text-text-primary p-1 rounded-lg" onclick="closeCreateModal()" type="button">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<form class="flex flex-col gap-space-md" id="quickCreateForm" onsubmit="handleQuickCreate(event)">
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-text-secondary">Đường dẫn gốc (Original URL) *</label>
+<div class="flex items-center bg-surface-card-subtle px-3 py-2 rounded-lg focus-within:bg-surface-card shadow-sm">
+<span class="material-symbols-outlined text-text-muted mr-2 text-[18px]">link</span>
+<input class="w-full bg-transparent border-0 outline-none font-body-sm text-body-sm text-text-primary" placeholder="https://example.com/very-long-url-path..." required="" type="url">
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-text-secondary">Custom Alias (Tuỳ chọn)</label>
+<div class="flex items-center bg-surface-card-subtle px-2 py-2 rounded-lg focus-within:bg-surface-card shadow-sm">
+<span class="font-label-md text-text-muted pr-1">snaplink.io/</span>
+<input class="w-full bg-transparent border-0 outline-none font-body-sm text-body-sm text-text-primary" placeholder="my-alias" type="text">
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-text-secondary">Ngày hết hạn (Tuỳ chọn)</label>
+<div class="flex items-center bg-surface-card-subtle px-3 py-2 rounded-lg focus-within:bg-surface-card shadow-sm">
+<input class="w-full bg-transparent border-0 outline-none font-body-sm text-body-sm text-text-primary" type="date">
+</div>
+</div>
+</div>
+<div class="flex items-center justify-end gap-space-sm mt-4">
+<button class="px-space-md py-2 rounded-lg bg-surface-card-subtle hover:bg-surface-container-high text-text-secondary font-label-lg text-label-lg" onclick="closeCreateModal()" type="button">
+            Đóng
+          </button>
+<button class="px-space-md py-2 rounded-lg text-on-primary font-label-lg text-label-lg shadow-md hover:brightness-105 bg-brand-violet" type="submit">
+            Tạo Ngay
+          </button>
+</div>
+</form>
+</div>
+</div>
+<!-- Micro Toast Notification -->
+<div class="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 bg-inverse-surface text-inverse-on-surface rounded-xl shadow-xl transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none" id="toastNotification">
+<span class="material-symbols-outlined text-status-emerald text-[20px]" id="toastIcon">check_circle</span>
+<span class="font-label-md text-label-md" id="toastMessage">Đã sao chép liên kết vào clipboard!</span>
+</div>
+</div>
+<script>
+  // Filter Dropdown Toggle
+  const filterBtn = document.getElementById('filterButton');
+  const filterDropdown = document.getElementById('filterDropdown');
+  const currentFilterLabel = document.getElementById('currentFilterLabel');
+
+  filterBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    filterDropdown.classList.toggle('hidden');
+  });
+
+  window.addEventListener('click', () => {
+    if (!filterDropdown.classList.contains('hidden')) {
+      filterDropdown.classList.add('hidden');
+    }
+  });
+
+  function setFilter(label) {
+    currentFilterLabel.innerText = label;
+    filterDropdown.classList.add('hidden');
+    showToast(`Đã lọc danh sách: ${label}`);
+  }
+
+  // Toast Functionality
+  let toastTimer = null;
+  function showToast(message, icon = 'check_circle', iconColor = 'text-status-emerald') {
+    const toast = document.getElementById('toastNotification');
+    const toastMsg = document.getElementById('toastMessage');
+    const toastIco = document.getElementById('toastIcon');
+
+    toastMsg.innerText = message;
+    toastIco.innerText = icon;
+    toastIco.className = `material-symbols-outlined text-[20px] ${iconColor}`;
+
+    clearTimeout(toastTimer);
+    toast.classList.remove('translate-y-24', 'opacity-0');
+    toast.classList.add('translate-y-0', 'opacity-100');
+
+    toastTimer = setTimeout(() => {
+      toast.classList.remove('translate-y-0', 'opacity-100');
+      toast.classList.add('translate-y-24', 'opacity-0');
+    }, 2400);
+  }
+
+  // Copy Short URL to Clipboard
+  function copyShortUrl(url, buttonElement) {
+    navigator.clipboard.writeText(url).then(() => {
+      const iconSpan = buttonElement.querySelector('span');
+      const originalIcon = iconSpan.innerText;
+      
+      iconSpan.innerText = 'check';
+      buttonElement.classList.add('text-status-emerald');
+
+      showToast(`Đã sao chép: ${url}`);
+
+      setTimeout(() => {
+        iconSpan.innerText = originalIcon;
+        buttonElement.classList.remove('text-status-emerald');
+      }, 2000);
+    }).catch(() => {
+      showToast('Không thể sao chép liên kết', 'error', 'text-error');
+    });
+  }
+
+  // Status Switch Interactive Toggle
+  function toggleStatus(btn) {
+    const isChecked = btn.getAttribute('aria-checked') === 'true';
+    const indicator = btn.querySelector('span:nth-child(2)');
+    const tableRow = btn.closest('tr');
+
+    if (isChecked) {
+      btn.setAttribute('aria-checked', 'false');
+      btn.classList.remove('bg-status-emerald');
+      btn.classList.add('bg-outline-variant');
+      indicator.classList.remove('translate-x-5');
+      indicator.classList.add('translate-x-0');
+      if (tableRow) tableRow.classList.add('opacity-80');
+      showToast('Đã chuyển liên kết sang trạng thái: Vô hiệu hoá (Inactive)', 'toggle_off', 'text-text-muted');
+    } else {
+      btn.setAttribute('aria-checked', 'true');
+      btn.classList.remove('bg-outline-variant');
+      btn.classList.add('bg-status-emerald');
+      indicator.classList.remove('translate-x-0');
+      indicator.classList.add('translate-x-5');
+      if (tableRow) tableRow.classList.remove('opacity-80');
+      showToast('Đã kích hoạt liên kết hoạt động (Active)', 'toggle_on', 'text-status-emerald');
+    }
+  }
+
+  // Delete Modal Operations
+  let activeDeleteId = null;
+  const deleteModal = document.getElementById('deleteModal');
+  const deleteTargetCode = document.getElementById('deleteTargetCode');
+  const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+
+  function confirmDelete(code, id) {
+    activeDeleteId = id;
+    deleteTargetCode.innerText = code;
+    deleteModal.classList.remove('hidden');
+  }
+
+  function closeDeleteModal() {
+    deleteModal.classList.add('hidden');
+    activeDeleteId = null;
+  }
+
+  confirmDeleteBtn.addEventListener('click', () => {
+    if (activeDeleteId) {
+      const row = document.querySelector(`tr[data-id="${activeDeleteId}"]`);
+      if (row) {
+        row.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        row.style.opacity = '0';
+        row.style.transform = 'translateX(20px)';
+        setTimeout(() => row.remove(), 300);
+      }
+      showToast('Đã xoá liên kết thành công!', 'delete', 'text-error');
+    }
+    closeDeleteModal();
+  });
+
+  // Create Modal Operations
+  const createModal = document.getElementById('createModal');
+  function openCreateModal() {
+    createModal.classList.remove('hidden');
+  }
+
+  function closeCreateModal() {
+    createModal.classList.add('hidden');
+  }
+
+  function handleQuickCreate(event) {
+    event.preventDefault();
+    closeCreateModal();
+    showToast('Tạo link rút gọn mới thành công!');
+  }
+
+  // Interactive Live Search filtering (Client-side simulation)
+  const searchInput = document.getElementById('searchLinksInput');
+  searchInput.addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('#urlTableBody tr');
+    rows.forEach(row => {
+      const text = row.innerText.toLowerCase();
+      if (text.includes(term)) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  });
+</script></main><footer class="w-full bg-surface-card/90 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)] mt-space-xl"><div class="max-w-7xl mx-auto px-6 py-space-lg flex flex-col md:flex-row items-center justify-between gap-space-md"><div class="flex items-center gap-space-sm"><span class="font-body-sm text-body-sm text-text-secondary">© 2026 SnapLink. All rights reserved.</span></div><div class="flex items-center gap-space-md"><a class="font-label-md text-label-md text-text-secondary hover:text-on-surface hover:bg-surface-container-high px-2 py-1 rounded transition-colors" data-path="dieu-khoan" href="#">Điều khoản</a><a class="font-label-md text-label-md text-text-secondary hover:text-on-surface hover:bg-surface-container-high px-2 py-1 rounded transition-colors" data-path="bao-mat" href="#">Bảo mật</a><a class="font-label-md text-label-md text-text-secondary hover:text-on-surface hover:bg-surface-container-high px-2 py-1 rounded transition-colors" data-path="ho-tro" href="#">Hỗ trợ</a><a class="inline-flex items-center gap-1.5 font-label-md text-label-md text-text-secondary hover:text-on-surface hover:bg-surface-container-high px-2 py-1 rounded transition-colors" data-path="status-api" href="#"><span class="w-2 h-2 rounded-full bg-status-emerald animate-pulse"></span>Status API</a></div></div></footer>
+
+</body></html>
