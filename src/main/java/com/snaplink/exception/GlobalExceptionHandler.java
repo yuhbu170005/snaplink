@@ -34,6 +34,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<ErrorResponse> handleRateLimitExceeded(RateLimitExceededException ex) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(HttpStatus.TOO_MANY_REQUESTS.value())
+                .message(ex.getMessage())
+                .timestamp(Instant.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header("Retry-After", String.valueOf(Math.max(1, ex.getRetryAfterSeconds())))
+                .header("X-RateLimit-Limit", String.valueOf(ex.getLimit()))
+                .header("X-RateLimit-Remaining", "0")
+                .header("X-RateLimit-Reset", String.valueOf(Math.max(1, ex.getRetryAfterSeconds())))
+                .body(errorResponse);
+    }
+
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponse> handleBadRequest(BadRequestException ex) {
         ErrorResponse errorResponse = ErrorResponse.builder()

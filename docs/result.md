@@ -150,5 +150,98 @@
      - Hoàn thành trọn vẹn mục tiêu Nền móng (Setup, Supabase PostgreSQL, Spring Security JWT, CRUD Short URL, Base62).
      - Sẵn sàng chuyển sang Tuần 2 (Redirect + Redis Cache-Aside + Rate Limiting).
 
+---
 
+## TUẦN 2 — Phần "đắt" nhất: Redirect + Redis cache + Rate limiting (FR2, FR5)
 
+### 📅 Ngày 8: High-Performance Cache-Aside Redirect Endpoint (`GET /{code}`) & Redis
+- **Thời gian hoàn thành:** 26/09/2026
+- **Trạng thái:** ✅ **Hoàn thành**
+- **Nội dung công việc đã làm:**
+  1. **Cấu hình Kết nối & Quản lý Cache Redis (Upstash Cloud):**
+     - Bổ sung cấu hình kết nối Redis Cloud vào `.env` (`REDIS_URL`) và [application.yml](../src/main/resources/application.yml).
+     - [RedisConfig.java](../src/main/java/com/snaplink/config/redis/RedisConfig.java):
+       - Tích hợp `GenericJackson2JsonRedisSerializer` kèm `JavaTimeModule` & polymorphic typing để serialize/deserialize đối tượng DTO an toàn.
+       - Cấu hình `RedisCacheManager` với TTL mặc định 10 phút, riêng cache `urls` cấu hình TTL 7 ngày và `users` 30 phút.
+       - Tạo `RedisTemplate<String, Object>` chuẩn cho các thao tác cache tuỳ biến.
+  2. **Xây dựng DTO Chuyển hướng:**
+     - [UrlRedirectDto.java](../src/main/java/com/snaplink/dto/internal/UrlRedirectDto.java): Lưu trữ `id`, `originalUrl`, `expiresAt`, `isActive` tối ưu kích thước lưu trữ trong Redis.
+  3. **Triển khai Logic Cache-Aside & Cache Invalidation:**
+     - [UrlService.java](../src/main/java/com/snaplink/service/UrlService.java):
+       - Hàm `getOriginalUrl(String code)`: 
+         1. **Cache Hit**: Kiểm tra Redis cache key `urls::{code}`. Nếu có và link còn hạn, hợp lệ $\rightarrow$ trả về ngay lập tức (không chạm Database).
+         2. **Cache Miss**: Truy vấn PostgreSQL qua `UrlRepository.findByShortCodeOrCustomAlias(code)`.
+         3. **Validate**: Kiểm tra trạng thái kích hoạt (`isActive`) và thời hạn (`expiresAt`). Nếu link hết hạn hoặc bị vô hiệu $\rightarrow$ ném `ResourceNotFoundException`.
+         4. **Write-back**: Ghi ngược `UrlRedirectDto` vào Redis cache kèm TTL tương ứng.
+       - **Cache Invalidation / Eviction**: Tự động xoá cache Redis khi chủ sở hữu xoá link (`deleteUrl`) hoặc đổi trạng thái link (`toggleUrlStatus`).
+  4. **Triển khai Redirect Controller & Public Security:**
+     - [RedirectController.java](../src/main/java/com/snaplink/controller/RedirectController.java): Cung cấp endpoint `GET /{code:[a-zA-Z0-9_-]+}` trả về HTTP `302 Found` với header `Location: {originalUrl}`.
+     - [SecurityConfig.java](../src/main/java/com/snaplink/config/security/SecurityConfig.java): Cho phép mọi request gọi `GET /{shortCode}` không cần JWT token.
+  5. **Bộ Kiểm thử Tự động & Đo lường Thực tế:**
+     - [RedirectControllerTest.java](../src/test/java/com/snaplink/controller/RedirectControllerTest.java): Kiểm thử MockMvc HTTP 302 Redirect và HTTP 404 khi link không tồn tại.
+     - [UrlServiceTest.java](../src/test/java/com/snaplink/service/UrlServiceTest.java): Bổ sung đầy đủ kịch bản kiểm thử:
+       - Cache Hit từ Redis.
+       - Cache Miss $\rightarrow$ fallback query DB và ghi ngược vào Redis.
+       - Link hết hạn $\rightarrow$ ném `ResourceNotFoundException`.
+       - Link bị inactive $\rightarrow$ ném `ResourceNotFoundException`.
+       - Xoá link $\rightarrow$ xoá cache Redis.
+       - Bật/tắt link $\rightarrow$ xoá cache Redis.
+     - **Kết quả kiểm thử:** Toàn bộ **58/58 tests passed (0 failures, 0 errors, BUILD SUCCESS)**.
+     - **Kiểm tra thực tế:** Redirect `GET /torvalds` $\rightarrow$ `HTTP 302 Location: https://github.com/torvalds` với tốc độ phản hồi nhanh.
+
+---
+
+### 📅 Ngày 9: Tối ưu hiệu năng, Two-Level Caching (Caffeine + Redis) & Đo lường Latency
+- **Thời gian hoàn thành:** 27/09/2026
+- **Trạng thái:** ✅ **Hoàn thành**
+- **Nội dung công việc đã làm:**
+  1. **Tích hợp In-Memory Cache (Caffeine):**
+     - Bổ sung thư viện `com.github.ben-manes.caffeine:caffeine` vào [pom.xml](../pom.xml).
+     - [LocalCacheConfig.java](../src/main/java/com/snaplink/config/cache/LocalCacheConfig.java): Định nghĩa bean `urlCaffeineCache` với `maximumSize(10_000)`, `expireAfterWrite(5, TimeUnit.MINUTES)` và `recordStats()` phục vụ thống kê metrics.
+  2. **Triển khai Kiến trúc Two-Level Caching & Graceful Fallback:**
+     - [UrlService.java](../src/main/java/com/snaplink/service/UrlService.java):
+       - **L1 In-Memory Cache (Caffeine)**: Kiểm tra RAM JVM trước tiên, đạt độ trễ sub-millisecond (< 2ms).
+       - **L2 Distributed Cache (Redis)**: Khi L1 miss $\rightarrow$ đọc từ Redis Cloud, sau đó tự động nạp (warm-up) lại vào L1 Caffeine.
+       - **L3 Database (PostgreSQL)**: Khi cả L1 & L2 miss $\rightarrow$ query DB, sau đó ghi đồng thời vào cả L1 và L2.
+       - **Smart TTL Calculation**: Tính toán TTL thông minh cho các link có `expiresAt` (`min(DEFAULT_TTL, Duration.between(now, expiresAt))`) để tránh giữ cache thừa.
+       - **Graceful Degradation (Chống sập khi lỗi Redis)**: Nếu kết nối Redis bị gián đoạn hoặc hết quota, hệ thống tự động fallback qua L1 Caffeine và Database mà không làm đứt đoạn dịch vụ người dùng.
+       - **Dual Eviction**: Đồng bộ xoá cache ở cả L1 Caffeine và L2 Redis khi cập nhật/xoá link.
+  3. **Bộ Kiểm thử Tự động:**
+     - [UrlServiceTest.java](../src/test/java/com/snaplink/service/UrlServiceTest.java): Bổ sung các test case kiểm thử L1 Cache Hit, L2 Cache Hit nạp L1, và kịch bản Redis Down phục vụ trơn tru từ DB & L1.
+     - Toàn bộ **60/60 tests passed 100% (0 failures, 0 errors, BUILD SUCCESS)**.
+  4. **Kết quả Đo lường Latency Thực tế (Benchmark `GET /{code}`):**
+     - Kịch bản: 100 requests liên tục vào endpoint redirect.
+     - **Min Latency:** `1.07 ms`
+     - **Average Latency:** `1.63 ms`
+     - **Median (p50):** `1.34 ms`
+     - **p95 Latency:** `1.96 ms`
+     - $\rightarrow$ Vượt trội so với tiêu chí NFR (< 100ms) trong BRD.
+
+---
+
+### 📅 Ngày 10–11 & Ngày 12: Distributed Rate Limiting (Redis Lua Script) & Annotation-Driven AOP
+- **Thời gian hoàn thành:** 27/09/2026
+- **Trạng thái:** ✅ **Hoàn thành**
+- **Nội dung công việc đã làm:**
+  1. **Thuật toán Rate Limiter bằng Redis Lua Script (Atomic Execution):**
+     - [RedisRateLimiter.java](../src/main/java/com/snaplink/config/ratelimit/RedisRateLimiter.java): Thực thi script Lua nguyên tử (`INCR` + `EXPIRE` + `TTL`) trong 1 round-trip, triệt tiêu nguy cơ Race Condition khi có concurrent requests.
+     - **Fail-Open Pattern**: Nếu kết nối Redis Cloud gặp sự cố, hệ thống ghi log cảnh báo và cho phép request đi qua (không làm gián đoạn người dùng).
+  2. **Xây dựng Custom Annotation `@RateLimit` & Spring AOP Aspect:**
+     - [RateLimit.java](../src/main/java/com/snaplink/config/ratelimit/RateLimit.java): Annotation cấu hình hạn mức phân tầng (`guestLimit = 10`, `authLimit = 30`, `windowSeconds = 60`, `keyPrefix = "create_url"`).
+     - [RateLimitAspect.java](../src/main/java/com/snaplink/config/ratelimit/RateLimitAspect.java):
+       - Tự động trích xuất Client IP (hỗ trợ `X-Forwarded-For`, `X-Real-IP`, `getRemoteAddr`).
+       - Tự động nhận diện Authenticated User qua `SecurityContextHolder` (định danh theo `user:{id}`).
+       - Tự động thiết lập các response headers: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`.
+  3. **Xử lý Ngoại lệ & HTTP Response 429:**
+     - [RateLimitExceededException.java](../src/main/java/com/snaplink/exception/RateLimitExceededException.java): Lưu trữ `retryAfterSeconds`, `limit`, `remaining`.
+     - [GlobalExceptionHandler.java](../src/main/java/com/snaplink/exception/GlobalExceptionHandler.java): Bắt ngoại lệ và trả về `HTTP 429 Too Many Requests` theo format chuẩn JSON kèm header `Retry-After`.
+  4. **Áp dụng Rate Limiting lên URL Creation:**
+     - [UrlController.java](../src/main/java/com/snaplink/controller/UrlController.java): Gắn `@RateLimit` lên `POST /api/urls`.
+     - [UrlService.java](../src/main/java/com/snaplink/service/UrlService.java): Tối ưu độ dài chuỗi temporary short code đảm bảo luôn nằm trong giới hạn `VARCHAR(16)` của schema DB.
+  5. **Bộ Kiểm thử Tự động & Live Spam Test:**
+     - [RedisRateLimiterTest.java](../src/test/java/com/snaplink/config/ratelimit/RedisRateLimiterTest.java): Kiểm thử các ca Cho phép, Từ chối vượt quota và Fail-open khi Redis lỗi.
+     - [RateLimitAspectTest.java](../src/test/java/com/snaplink/config/ratelimit/RateLimitAspectTest.java): Kiểm thử kiểm soát IP Guest và User Authenticated.
+     - **Kết quả kiểm thử:** Toàn bộ **66/66 tests passed 100% (0 failures, 0 errors, BUILD SUCCESS)**.
+     - **Kiểm tra thực tế (Live Spam Test):** Gửi 14 requests liên tiếp từ cùng một IP:
+       - Request 1 $\rightarrow$ 10: Thành công (Remaining đếm lùi 9 $\rightarrow$ 0).
+       - Request 11 $\rightarrow$ 14: Bị chặn chính xác với HTTP 429 và header `Retry-After: 58s`.

@@ -28,10 +28,10 @@
 
 | Ngày | Công việc | Trạng thái |
 |---|---|---|
-| Ngày 8 | Implement `GET /{code}`: luồng cache-aside — check Redis trước, cache miss thì query Postgres rồi ghi lại vào Redis, redirect 301/302 về URL gốc. Xử lý case code không tồn tại/hết hạn → trang 404 thân thiện. | ☐ |
-| Ngày 9 | Đo latency thực tế (JMeter/k6 hoặc curl + time), set TTL hợp lý cho cache. Chuẩn bị sẵn fallback Caffeine in-memory cache nếu cần (rủi ro Redis free-tier). | ☐ |
-| Ngày 10–11 | Rate limiting: dùng Redis (token bucket hoặc fixed window đơn giản trước) để giới hạn request tạo short URL theo IP/user (ví dụ 20 req/phút). Trả HTTP 429 kèm message rõ ràng khi vượt giới hạn. Test bằng cách spam request. | ☐ |
-| Ngày 12 | Viết unit test cho phần cache-aside logic và rate limiter (mock Redis nếu cần). | ☐ |
+| Ngày 8 | Implement `GET /{code}`: luồng cache-aside — check Redis trước, cache miss thì query Postgres rồi ghi lại vào Redis, redirect 301/302 về URL gốc. Xử lý case code không tồn tại/hết hạn → trang 404 thân thiện. | ☑ |
+| Ngày 9 | Đo latency thực tế (JMeter/k6 hoặc curl + time), set TTL hợp lý cho cache. Chuẩn bị sẵn fallback Caffeine in-memory cache nếu cần (rủi ro Redis free-tier). | ☑ |
+| Ngày 10–11 | Rate limiting: dùng Redis (token bucket hoặc fixed window đơn giản trước) để giới hạn request tạo short URL theo IP/user (ví dụ 20 req/phút). Trả HTTP 429 kèm message rõ ràng khi vượt giới hạn. Test bằng cách spam request. | ☑ |
+| Ngày 12 | Viết unit test cho phần cache-aside logic và rate limiter (mock Redis nếu cần). | ☑ |
 | Ngày 13 | Bắt đầu phần async click tracking (chuẩn bị cho tuần 3): dùng Spring `@Async` + event, publish event ngay sau khi redirect nhưng **không** chờ xử lý xong mới trả response. | ☐ |
 | Ngày 14 | Buffer + review lại toàn bộ luồng redirect end-to-end, đảm bảo đạt NFR <100ms trên môi trường gần giống production. | ☐ |
 

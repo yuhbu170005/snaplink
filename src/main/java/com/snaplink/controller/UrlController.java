@@ -1,5 +1,6 @@
 package com.snaplink.controller;
 
+import com.snaplink.config.ratelimit.RateLimit;
 import com.snaplink.config.security.UserPrincipal;
 import com.snaplink.dto.request.CreateUrlRequest;
 import com.snaplink.dto.response.UrlResponse;
@@ -19,6 +20,7 @@ public class UrlController {
     private final UrlService urlService;
 
     @PostMapping
+    @RateLimit(guestLimit = 10, authLimit = 30, windowSeconds = 60, keyPrefix = "create_url")
     public ResponseEntity<UrlResponse> createShortUrl(
             @Valid @RequestBody CreateUrlRequest request,
             @AuthenticationPrincipal UserPrincipal currentUser
