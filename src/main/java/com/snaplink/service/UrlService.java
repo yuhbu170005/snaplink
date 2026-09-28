@@ -101,6 +101,11 @@ public class UrlService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public String getOriginalUrl(String code) {
+        return getRedirectInfo(code).getOriginalUrl();
+    }
+
     /**
      * Two-Level Cache-Aside Redirect Lookup:
      * 1. L1 Check: In-Memory Caffeine Cache (< 1ms)
@@ -109,7 +114,7 @@ public class UrlService {
      * 4. Resilient: If Redis is down, gracefully serves from L1 and DB
      */
     @Transactional(readOnly = true)
-    public String getOriginalUrl(String code) {
+    public UrlRedirectDto getRedirectInfo(String code) {
         String cacheKey = REDIS_KEY_PREFIX + code;
 
         // 1. Kiểm tra L1: In-Memory Caffeine Cache
@@ -117,7 +122,7 @@ public class UrlService {
         if (l1Dto != null) {
             log.debug("L1 Caffeine Cache HIT for code '{}'", code);
             validateRedirect(l1Dto.getIsActive(), l1Dto.getExpiresAt(), code, cacheKey);
-            return l1Dto.getOriginalUrl();
+            return l1Dto;
         }
 
         // 2. Kiểm tra L2: Redis Cache
@@ -136,7 +141,7 @@ public class UrlService {
             validateRedirect(cachedDto.getIsActive(), cachedDto.getExpiresAt(), code, cacheKey);
             // Nạp vào L1 Caffeine để các request kế tiếp truy cập siêu tốc
             urlCaffeineCache.put(code, cachedDto);
-            return cachedDto.getOriginalUrl();
+            return cachedDto;
         }
 
         // 3. Cache MISS toàn bộ: Truy vấn PostgreSQL DB
@@ -168,7 +173,7 @@ public class UrlService {
             log.warn("Redis write error for key {}: {}. System operational via L1 & DB.", cacheKey, ex.getMessage());
         }
 
-        return url.getOriginalUrl();
+        return redirectDto;
     }
 
     @Transactional(readOnly = true)

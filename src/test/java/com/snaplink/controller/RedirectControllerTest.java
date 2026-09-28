@@ -1,60 +1,74 @@
 package com.snaplink.controller;
 
-import com.snaplink.config.security.CustomUserDetailsService;
-import com.snaplink.config.security.JwtAuthenticationEntryPoint;
-import com.snaplink.config.security.JwtAuthenticationFilter;
-import com.snaplink.config.security.JwtTokenProvider;
+import com.snaplink.dto.internal.UrlRedirectDto;
+import com.snaplink.event.ClickTrackEvent;
+import com.snaplink.exception.GlobalExceptionHandler;
 import com.snaplink.exception.ResourceNotFoundException;
 import com.snaplink.service.UrlService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(RedirectController.class)
-@AutoConfigureMockMvc(addFilters = false)
+@ExtendWith(MockitoExtension.class)
 class RedirectControllerTest {
 
-    @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean
+    @Mock
     private UrlService urlService;
 
-    @MockitoBean
-    private JwtTokenProvider jwtTokenProvider;
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
-    @MockitoBean
-    private CustomUserDetailsService customUserDetailsService;
+    @InjectMocks
+    private RedirectController redirectController;
 
-    @MockitoBean
-    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-
-    @MockitoBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(redirectController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
+    }
 
     @Test
-    @DisplayName("GET /{code}: chuyển hướng thành công với HTTP 302 Found và header Location")
-    void redirect_Success_Returns302() throws Exception {
-        when(urlService.getOriginalUrl("xyz123")).thenReturn("https://destination-url.com/landing");
+    @DisplayName("GET /{code}: chuyển hướng thành công với HTTP 302 Found và phát ClickTrackEvent")
+    void redirect_Success_Returns302AndPublishesEvent() throws Exception {
+        UrlRedirectDto dto = UrlRedirectDto.builder()
+                .id(1L)
+                .shortCode("xyz123")
+                .originalUrl("https://destination-url.com/landing")
+                .isActive(true)
+                .build();
 
-        mockMvc.perform(get("/xyz123"))
+        when(urlService.getRedirectInfo("xyz123")).thenReturn(dto);
+
+        mockMvc.perform(get("/xyz123")
+                        .header("User-Agent", "Mozilla/5.0")
+                        .header("Referer", "https://google.com"))
                 .andExpect(status().isFound())
                 .andExpect(header().string("Location", "https://destination-url.com/landing"));
+
+        verify(eventPublisher).publishEvent(any(ClickTrackEvent.class));
     }
 
     @Test
     @DisplayName("GET /{code}: trả về HTTP 404 khi mã short code không tồn tại hoặc đã hết hạn")
     void redirect_NotFound_Returns404() throws Exception {
-        when(urlService.getOriginalUrl("notfound")).thenThrow(new ResourceNotFoundException("Short URL not found: notfound"));
+        when(urlService.getRedirectInfo("notfound")).thenThrow(new ResourceNotFoundException("Short URL not found: notfound"));
 
         mockMvc.perform(get("/notfound"))
                 .andExpect(status().isNotFound());
