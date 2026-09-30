@@ -18,7 +18,7 @@ URL Shortener là một trong những hệ thống backend kinh điển được
 ### 1.2 Mục tiêu dự án
 - Xây dựng một dịch vụ rút gọn URL có khả năng theo dõi (track) lượt truy cập chi tiết.
 - Thể hiện năng lực xử lý các vấn đề backend nâng cao: cache-aside pattern, rate limiting, xử lý async, thiết kế thuật toán.
-- **Xây dựng frontend hoàn chỉnh, trực quan** (không chỉ dừng ở Swagger UI) để demo được trải nghiệm người dùng thật khi phỏng vấn.
+- **Xây dựng frontend hoàn chỉnh, trực quan** để demo được trải nghiệm người dùng thật khi phỏng vấn.
 - Tạo ra một sản phẩm hoàn chỉnh, có thể demo trực tiếp (deploy công khai cả frontend lẫn backend) phục vụ mục đích phỏng vấn/CV cho vị trí **Full-stack**.
 
 ### 1.3 Phạm vi ngoài dự án (Out of scope)
