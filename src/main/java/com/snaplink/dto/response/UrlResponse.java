@@ -1,24 +1,23 @@
 package com.snaplink.dto.response;
 
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
 
+/** DTO trả link. isActive là boolean; expiresAt độc lập với trạng thái bật/tắt. */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UrlResponse {
 
-    Long id;
-    String shortCode;
-    String shortUrl;
-    String originalUrl;
-    String customAlias;
-    Instant expiresAt;
-    Instant createdAt;
-    Boolean isActive;
-    Long userId;
+    private Long id;
+    private String shortCode;
+    private String shortUrl;
+    private String originalUrl;
+    private String customAlias;
+    private Instant expiresAt;
+    private Instant createdAt;
+    private Boolean isActive;
+    private Long userId;
 }

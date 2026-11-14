@@ -1,20 +1,19 @@
 package com.snaplink.dto.response;
 
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
 
+/** Thông tin tài khoản được phép công khai cho chính user; không chứa password hash. */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserResponse {
 
-    Long id;
+    private Long id;
 
-    String email;
+    private String email;
 
-    Instant createdAt;
+    private Instant createdAt;
 }

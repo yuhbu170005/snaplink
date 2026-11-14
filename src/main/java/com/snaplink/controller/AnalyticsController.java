@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+/** API thống kê riêng của chủ link; không tính toán dữ liệu ngay trong controller. */
 @RestController
 @RequestMapping("/api/urls")
 @RequiredArgsConstructor
@@ -31,6 +32,7 @@ public class AnalyticsController {
                     @ApiResponse(responseCode = "404", description = "Không tìm thấy URL hoặc không thuộc quyền sở hữu")
             }
     )
+    /** Kiểm tra chủ sở hữu trước, sau đó mới truy vấn thống kê để tránh lộ dữ liệu. */
     public ResponseEntity<AnalyticsResponse> getAnalytics(
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {

@@ -444,4 +444,44 @@ class UrlServiceTest {
         assertThat(response.getIsActive()).isFalse();
         verify(redisTemplate, times(1)).delete("url:code:code10");
     }
+    @Test
+    void generatedCodeAvoidsAliasAlreadyChosenByAnotherUser() {
+        String generated = com.snaplink.util.Base62.encode(100L + com.snaplink.util.Base62.BASE_OFFSET);
+        when(urlRepository.save(any(Url.class))).thenReturn(Url.builder()
+                .id(100L).shortCode("temp").originalUrl("https://example.com").isActive(true).build());
+        when(urlRepository.existsByShortCode(generated)).thenReturn(true);
+        UrlResponse result = urlService.createShortUrl(CreateUrlRequest.builder()
+                .originalUrl("https://example.com").build(), null);
+        assertThat(result.getShortCode()).isEqualTo("_" + generated);
+        verify(urlRepository).flush();
+    }
+
+    @Test
+    void updateConstraintViolationBecomes409InsteadOf500() {
+        when(urlRepository.save(any(Url.class))).thenReturn(Url.builder()
+                .id(100L).shortCode("temp").originalUrl("https://example.com").build());
+        doThrow(new DataIntegrityViolationException("unique violation at flush"))
+                .when(urlRepository).flush();
+        assertThatThrownBy(() -> urlService.createShortUrl(CreateUrlRequest.builder()
+                .originalUrl("https://example.com").build(), null)).isInstanceOf(ConflictException.class);
+    }
+
+    @Test
+    void cacheEvictionWaitsForSuccessfulCommit() {
+        Url url = Url.builder().id(10L).shortCode("commit10").isActive(true).build();
+        when(urlRepository.findByIdAndUserId(10L, 1L)).thenReturn(Optional.of(url));
+        when(urlRepository.save(any(Url.class))).thenAnswer(call -> call.getArgument(0));
+        org.springframework.transaction.support.TransactionSynchronizationManager.initSynchronization();
+        try {
+            urlService.toggleUrlStatus(10L, samplePrincipal);
+            verifyNoInteractions(redisTemplate);
+            for (var callback : org.springframework.transaction.support.TransactionSynchronizationManager.getSynchronizations()) {
+                callback.afterCommit();
+            }
+            verify(redisTemplate).delete("url:code:commit10");
+        } finally {
+            org.springframework.transaction.support.TransactionSynchronizationManager.clearSynchronization();
+        }
+    }
+
 }

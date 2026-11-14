@@ -28,7 +28,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+/** Nghiệp vụ link: kiểm tra đầu vào, sinh mã, kiểm tra chủ sở hữu và tra cache khi redirect. */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -45,11 +48,12 @@ public class UrlService {
     @Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
 
+    /** Tạo link cho guest hoặc user; chỉ user đã đăng nhập mới được chọn custom alias. */
     @Transactional
     public UrlResponse createShortUrl(CreateUrlRequest request, UserPrincipal currentUser) {
         UrlValidator.validateOriginalUrl(request.getOriginalUrl());
 
-        if (request.getExpiresAt() != null && request.getExpiresAt().isBefore(Instant.now())) {
+        if (request.getExpiresAt() != null && !request.getExpiresAt().isAfter(Instant.now())) {
             throw new BadRequestException("Expiration date must be in the future");
         }
 
@@ -92,150 +96,157 @@ public class UrlService {
 
             if (customAlias == null) {
                 String generatedCode = Base62.encode(savedUrl.getId() + Base62.BASE_OFFSET);
+                // Alias do user chọn có thể trùng mã Base62 của một ID được tạo sau đó.
+                // ID tiếp theo vẫn duy nhất; thêm '_' cho đến khi có routing key còn trống.
+                while (urlRepository.existsByShortCode(generatedCode)
+                        || urlRepository.existsByCustomAlias(generatedCode)) {
+                    generatedCode = "_" + generatedCode;
+                }
                 savedUrl.setShortCode(generatedCode);
             }
 
+            // JPA thường chỉ UPDATE lúc commit. Flush ngay để bắt lỗi UNIQUE tại đây.
+            urlRepository.flush();
             return mapToResponse(savedUrl);
         } catch (DataIntegrityViolationException ex) {
             throw new ConflictException("Alias or short code already exists, please try another one.");
         }
     }
 
+    /** Hàm tiện ích lấy URL gốc từ cùng luồng kiểm tra redirect. */
     @Transactional(readOnly = true)
     public String getOriginalUrl(String code) {
         return getRedirectInfo(code).getOriginalUrl();
     }
 
     /**
-     * Two-Level Cache-Aside Redirect Lookup:
-     * 1. L1 Check: In-Memory Caffeine Cache (< 1ms)
-     * 2. L2 Check: Distributed Redis Cache (< 30ms) -> On hit, populate L1
-     * 3. L3 Fallback: Query PostgreSQL DB -> Write-back to both L1 & L2 (with Smart TTL)
-     * 4. Resilient: If Redis is down, gracefully serves from L1 and DB
+     * Cache-aside: đọc Caffeine (RAM), rồi Redis, cuối cùng mới đọc database.
+     * Redis chỉ giúp tăng tốc; lỗi Redis không được làm hỏng redirect.
      */
     @Transactional(readOnly = true)
     public UrlRedirectDto getRedirectInfo(String code) {
-        String cacheKey = REDIS_KEY_PREFIX + code;
-
-        // 1. Kiểm tra L1: In-Memory Caffeine Cache
-        UrlRedirectDto l1Dto = urlCaffeineCache.getIfPresent(code);
-        if (l1Dto != null) {
-            log.debug("L1 Caffeine Cache HIT for code '{}'", code);
-            validateRedirect(l1Dto.getIsActive(), l1Dto.getExpiresAt(), code, cacheKey);
-            return l1Dto;
+        UrlRedirectDto redirect = urlCaffeineCache.getIfPresent(code);
+        if (redirect != null) {
+            validateRedirect(redirect, code);
+            return redirect; // Không put lại: cache hit không được kéo dài TTL của L1.
+        }
+        redirect = readRedis(code);
+        if (redirect == null) {
+            Url url = urlRepository.findByShortCode(code)
+                    .or(() -> urlRepository.findByCustomAlias(code))
+                    .orElseThrow(() -> new ResourceNotFoundException("Short URL not found: " + code));
+            redirect = UrlRedirectDto.builder()
+                    .id(url.getId())
+                    .originalUrl(url.getOriginalUrl())
+                    .shortCode(url.getShortCode())
+                    .expiresAt(url.getExpiresAt())
+                    .isActive(url.getIsActive())
+                    .build();
+            validateRedirect(redirect, code);
+            writeRedis(code, redirect);
         }
 
-        // 2. Kiểm tra L2: Redis Cache
-        UrlRedirectDto cachedDto = null;
-        try {
-            Object cachedObj = redisTemplate.opsForValue().get(cacheKey);
-            if (cachedObj instanceof UrlRedirectDto dto) {
-                cachedDto = dto;
-            }
-        } catch (Exception ex) {
-            log.warn("Redis read error for key {}: {}. Falling back to DB.", cacheKey, ex.getMessage());
-        }
-
-        if (cachedDto != null) {
-            log.debug("L2 Redis Cache HIT for code '{}'", code);
-            validateRedirect(cachedDto.getIsActive(), cachedDto.getExpiresAt(), code, cacheKey);
-            // Nạp vào L1 Caffeine để các request kế tiếp truy cập siêu tốc
-            urlCaffeineCache.put(code, cachedDto);
-            return cachedDto;
-        }
-
-        // 3. Cache MISS toàn bộ: Truy vấn PostgreSQL DB
-        log.debug("Cache MISS for code '{}'. Querying Database.", code);
-        Url url = urlRepository.findByShortCode(code)
-                .or(() -> urlRepository.findByCustomAlias(code))
-                .orElseThrow(() -> new ResourceNotFoundException("Short URL not found: " + code));
-
-        // 4. Kiểm tra tính hợp lệ
-        validateRedirect(url.getIsActive(), url.getExpiresAt(), code, null);
-
-        UrlRedirectDto redirectDto = UrlRedirectDto.builder()
-                .id(url.getId())
-                .originalUrl(url.getOriginalUrl())
-                .shortCode(url.getShortCode())
-                .expiresAt(url.getExpiresAt())
-                .isActive(url.getIsActive())
-                .build();
-
-        // 5. Ghi dữ liệu vào L1 Caffeine Cache
-        urlCaffeineCache.put(code, redirectDto);
-
-        // 6. Ghi dữ liệu vào L2 Redis Cache với Smart TTL
-        Duration ttl = calculateTtl(url.getExpiresAt());
-        try {
-            redisTemplate.opsForValue().set(cacheKey, redirectDto, ttl);
-            log.debug("Cached code '{}' in Redis with Smart TTL {}s", code, ttl.getSeconds());
-        } catch (Exception ex) {
-            log.warn("Redis write error for key {}: {}. System operational via L1 & DB.", cacheKey, ex.getMessage());
-        }
-
-        return redirectDto;
+        // Cache hit vẫn phải kiểm tra expiration; TTL của Caffeine không phải hạn dùng link.
+        validateRedirect(redirect, code);
+        urlCaffeineCache.put(code, redirect);
+        return redirect;
     }
 
+    /** Đọc Redis an toàn. Trả null nghĩa là cache miss hoặc Redis đang lỗi. */
+    private UrlRedirectDto readRedis(String code) {
+        try {
+            Object value = redisTemplate.opsForValue().get(REDIS_KEY_PREFIX + code);
+            return value instanceof UrlRedirectDto dto ? dto : null;
+        } catch (Exception ex) {
+            log.warn("Cannot read redirect cache: {}", ex.getMessage());
+            return null;
+        }
+    }
+
+    /** Cache không sống lâu hơn link và tối đa 24 giờ. */
+    private void writeRedis(String code, UrlRedirectDto redirect) {
+        try {
+            redisTemplate.opsForValue().set(REDIS_KEY_PREFIX + code, redirect, calculateTtl(redirect.getExpiresAt()));
+        } catch (Exception ex) {
+            log.warn("Cannot write redirect cache: {}", ex.getMessage());
+        }
+    }
+
+    /** Chỉ đọc link của user hiện tại, có phân trang để giới hạn dữ liệu mỗi request. */
     @Transactional(readOnly = true)
     public PageResponse<UrlResponse> getMyUrls(UserPrincipal currentUser, Pageable pageable) {
         Page<Url> page = urlRepository.findByUserId(currentUser.getId(), pageable);
         return PageResponse.from(page, this::mapToResponse);
     }
 
+    /** Đọc một link kèm điều kiện sở hữu; không cho phép đọc link của tài khoản khác. */
     @Transactional(readOnly = true)
     public UrlResponse getUrlById(Long id, UserPrincipal currentUser) {
-        Url url = urlRepository.findByIdAndUserId(id, currentUser.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("URL not found with id: " + id));
+        Url url = findOwnedUrl(id, currentUser);
 
         return mapToResponse(url);
     }
 
+    /** Xoá link của chính user; click liên quan được xoá theo quan hệ và cache được vô hiệu hoá. */
     @Transactional
     public void deleteUrl(Long id, UserPrincipal currentUser) {
-        Url url = urlRepository.findByIdAndUserId(id, currentUser.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("URL not found with id: " + id));
+        Url url = findOwnedUrl(id, currentUser);
 
         // Invalidate cả L1 Caffeine và L2 Redis
-        evictCache(url.getShortCode(), url.getCustomAlias());
         urlRepository.delete(url);
+        evictAfterCommit(url);
     }
 
+    /** Đảo isActive hiện tại; API này không nhận trạng thái đích trong body. */
     @Transactional
     public UrlResponse toggleUrlStatus(Long id, UserPrincipal currentUser) {
-        Url url = urlRepository.findByIdAndUserId(id, currentUser.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("URL not found with id: " + id));
+        Url url = findOwnedUrl(id, currentUser);
 
         url.setIsActive(!Boolean.TRUE.equals(url.getIsActive()));
         Url updatedUrl = urlRepository.save(url);
 
         // Invalidate cả L1 Caffeine và L2 Redis
-        evictCache(url.getShortCode(), url.getCustomAlias());
+        evictAfterCommit(url);
 
         return mapToResponse(updatedUrl);
     }
 
-    private void validateRedirect(Boolean isActive, Instant expiresAt, String code, String cacheKey) {
-        if (!Boolean.TRUE.equals(isActive)) {
-            urlCaffeineCache.invalidate(code);
-            if (cacheKey != null) {
-                try {
-                    redisTemplate.delete(cacheKey);
-                } catch (Exception ignored) {}
-            }
-            throw new ResourceNotFoundException("Link has been disabled: " + code);
-        }
+    /** Không trả dữ liệu của người khác; dùng 404 để không tiết lộ link có tồn tại hay không. */
+    private Url findOwnedUrl(Long id, UserPrincipal currentUser) {
+        return urlRepository.findByIdAndUserId(id, currentUser.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("URL not found with id: " + id));
+    }
 
-        if (expiresAt != null && expiresAt.isBefore(Instant.now())) {
-            urlCaffeineCache.invalidate(code);
-            if (cacheKey != null) {
-                try {
-                    redisTemplate.delete(cacheKey);
-                } catch (Exception ignored) {}
-            }
-            throw new ResourceNotFoundException("Link has expired: " + code);
+    private void validateRedirect(UrlRedirectDto redirect, String code) {
+        boolean disabled = !Boolean.TRUE.equals(redirect.getIsActive());
+        boolean expired = redirect.getExpiresAt() != null && !redirect.getExpiresAt().isAfter(Instant.now());
+        if (disabled || expired) {
+            evictCache(code, null);
+            String reason = disabled ? "Link has been disabled: " : "Link has expired: ";
+            throw new ResourceNotFoundException(reason + code);
         }
     }
 
+    /**
+     * Chỉ xoá cache sau khi DB commit thành công. Nếu xoá trước commit, request khác
+     * có thể đọc bản cũ trong DB rồi nạp ngược lại cache.
+     */
+    private void evictAfterCommit(Url url) {
+        String code = url.getShortCode();
+        String alias = url.getCustomAlias();
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            evictCache(code, alias); // Unit test gọi service trực tiếp không có Spring transaction.
+            return;
+        }
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                evictCache(code, alias);
+            }
+        });
+    }
+
+    /** TTL bằng thời gian còn lại của link, nhưng không quá giới hạn cache mặc định. */
     private Duration calculateTtl(Instant expiresAt) {
         if (expiresAt == null) {
             return DEFAULT_CACHE_TTL;
@@ -247,6 +258,7 @@ public class UrlService {
         return remaining.compareTo(DEFAULT_CACHE_TTL) < 0 ? remaining : DEFAULT_CACHE_TTL;
     }
 
+    /** Xoá mã và alias khỏi Caffeine/Redis; lỗi cache không làm rollback nghiệp vụ đã thành công. */
     private void evictCache(String shortCode, String customAlias) {
         // 1. Evict L1 Caffeine
         if (shortCode != null) {
@@ -269,6 +281,7 @@ public class UrlService {
         }
     }
 
+    /** Chuyển entity sang DTO, tạo shortUrl bằng base URL của backend. */
     private UrlResponse mapToResponse(Url url) {
         String code = url.getShortCode();
         String fullShortUrl = (baseUrl.endsWith("/") ? baseUrl : baseUrl + "/") + code;

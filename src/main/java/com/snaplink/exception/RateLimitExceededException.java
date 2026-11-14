@@ -2,6 +2,7 @@ package com.snaplink.exception;
 
 import lombok.Getter;
 
+/** Chứa thông tin quota vượt mức để handler trả HTTP 429 kèm Retry-After. */
 @Getter
 public class RateLimitExceededException extends RuntimeException {
 

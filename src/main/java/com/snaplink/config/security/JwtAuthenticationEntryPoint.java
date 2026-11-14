@@ -1,7 +1,10 @@
 package com.snaplink.config.security;
 
+import com.snaplink.exception.ErrorResponse;
+import tools.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
@@ -11,33 +14,20 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.time.Instant;
 
+/** Security filter chạy trước controller, nên lỗi 401 phải được viết JSON tại đây. */
 @Component
+@RequiredArgsConstructor
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+    private final ObjectMapper objectMapper;
 
     @Override
-    public void commence(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            AuthenticationException authException
-    ) throws IOException {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    public void commence(HttpServletRequest request, HttpServletResponse response,
+                         AuthenticationException exception) throws IOException {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
-
-        String message = authException != null && authException.getMessage() != null
-                ? authException.getMessage()
-                : "Unauthorized access";
-
-        String jsonResponse = String.format(
-                "{\"status\":401,\"message\":\"Unauthorized: %s\",\"timestamp\":\"%s\"}",
-                escapeJson(message),
-                Instant.now().toString()
-        );
-
-        response.getWriter().write(jsonResponse);
-    }
-
-    private String escapeJson(String input) {
-        if (input == null) return "";
-        return input.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r");
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        ErrorResponse error = ErrorResponse.builder()
+                .status(401).message("Authentication required").timestamp(Instant.now()).build();
+        // Dùng serializer để escape JSON đúng, không tự nối chuỗi từ message của exception.
+        response.getWriter().write(objectMapper.writeValueAsString(error));
     }
 }

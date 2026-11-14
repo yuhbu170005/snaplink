@@ -80,7 +80,7 @@ class AuthServiceTest {
 
     @Test
     @DisplayName("register: ném BadRequestException khi email đã tồn tại")
-    void register_EmailExists_ThrowsBadRequestException() {
+    void register_EmailExists_ThrowsConflictException() {
         RegisterRequest request = RegisterRequest.builder()
                 .email("test@snaplink.com")
                 .password("Password123!")
@@ -89,7 +89,7 @@ class AuthServiceTest {
         when(userRepository.existsByEmail("test@snaplink.com")).thenReturn(true);
 
         assertThatThrownBy(() -> authService.register(request))
-                .isInstanceOf(BadRequestException.class)
+                .isInstanceOf(com.snaplink.exception.ConflictException.class)
                 .hasMessageContaining("Email is already registered");
 
         verify(userRepository, never()).save(any(User.class));
@@ -158,4 +158,13 @@ class AuthServiceTest {
         assertThat(response.getId()).isEqualTo(1L);
         assertThat(response.getEmail()).isEqualTo("test@snaplink.com");
     }
+    @Test
+    void longUnicodePasswordIsRejectedBeforeBCrypt() {
+        RegisterRequest request = RegisterRequest.builder().email("test@example.com")
+                .password("ệ".repeat(25)).build();
+        assertThatThrownBy(() -> authService.register(request)).isInstanceOf(BadRequestException.class)
+                .hasMessageContaining("72 UTF-8 bytes");
+        verifyNoInteractions(userRepository, passwordEncoder);
+    }
+
 }

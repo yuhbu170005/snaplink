@@ -36,3 +36,9 @@ build/
 docs/core_knowledge.md
 docs/snaplink_mastery_answers.md
 docs/interview_guide.md
+
+# GeoIP data và môi trường local (example được phép commit)
+*.mmdb
+!src/test/resources/geoip/*.mmdb
+frontend/.env*
+!frontend/.env.example

@@ -2,11 +2,10 @@ package com.snaplink.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 
+/** Entity ánh xạ một lượt truy cập. Mỗi click là một dòng mới, không UPDATE bộ đếm trong urls. */
 @Entity
 @Table(
     name = "click_events",
@@ -20,33 +19,35 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ClickEvent {
 
+    // IDENTITY: database cấp ID khi INSERT, không phải Java tự tăng biến.
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
+    // LAZY: chỉ tải entity liên quan khi cần, trong transaction của service.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "url_id", nullable = false)
-    Url url;
+    private Url url;
 
-    @CreationTimestamp
+    // Giữ thời điểm request xảy ra, không ghi đè bằng thời điểm worker xử lý.
+    @Builder.Default
     @Column(name = "clicked_at", nullable = false, updatable = false)
-    Instant clickedAt;
+    private Instant clickedAt = Instant.now();
 
     @Column(name = "ip_address", length = 45)
-    String ipAddress;
+    private String ipAddress;
 
     @Column(length = 100)
-    String country;
+    private String country;
 
     @Column(name = "device_type", length = 50)
-    String deviceType;
+    private String deviceType;
 
     @Column(length = 50)
-    String browser;
+    private String browser;
 
     @Column(columnDefinition = "TEXT")
-    String referrer;
+    private String referrer;
 }

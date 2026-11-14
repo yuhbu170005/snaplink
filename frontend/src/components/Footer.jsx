@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Nội dung footer dùng chung giữa các trang; không giữ state và không gọi API. */
 const Footer = () => {
   return (
     <footer className="w-full bg-surface-card/90 backdrop-blur-md border-t border-border-subtle shadow-[0_1px_8px_rgba(0,0,0,0.04)] mt-16">

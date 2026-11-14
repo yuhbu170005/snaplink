@@ -1,16 +1,15 @@
 package com.snaplink.dto.response.analytics;
 
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 
+/** Một nhóm thống kê: tên nhóm, số click và phần trăm so với tổng click. */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class StatItem {
-    String name;
-    long count;
+    private String name;
+    private long count;
     double percentage;
 }

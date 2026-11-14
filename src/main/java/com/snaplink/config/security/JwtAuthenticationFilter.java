@@ -16,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/** Filter chạy một lần/request: đọc Bearer token, xác minh rồi đặt UserPrincipal vào SecurityContext. */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -24,6 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider tokenProvider;
     private final CustomUserDetailsService customUserDetailsService;
 
+    /** Xác thực token và gắn principal cho request; quyền truy cập vẫn do SecurityConfig quyết định. */
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -47,12 +49,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception ex) {
-            log.error("Could not set user authentication in security context", ex);
+            SecurityContextHolder.clearContext();
+            log.debug("JWT authentication rejected: {}", ex.getMessage());
         }
 
         filterChain.doFilter(request, response);
     }
 
+    /** Chỉ lấy phần sau tiền tố Authorization: Bearer; thiếu token thì xử lý như guest. */
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {

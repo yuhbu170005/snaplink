@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.List;
 
+/** Fixed window trên Redis. Lua gộp INCR và EXPIRE thành một thao tác atomic để tránh race condition. */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -17,33 +18,32 @@ public class RedisRateLimiter {
 
     private final StringRedisTemplate stringRedisTemplate;
 
-    private static final String RATE_LIMIT_LUA_SCRIPT =
-            "local key = KEYS[1]\n" +
-            "local limit = tonumber(ARGV[1])\n" +
-            "local window = tonumber(ARGV[2])\n" +
-            "\n" +
-            "local current = redis.call('INCR', key)\n" +
-            "if current == 1 then\n" +
-            "    redis.call('EXPIRE', key, window)\n" +
-            "end\n" +
-            "\n" +
-            "local ttl = redis.call('TTL', key)\n" +
-            "if ttl < 0 then\n" +
-            "    redis.call('EXPIRE', key, window)\n" +
-            "    ttl = window\n" +
-            "end\n" +
-            "\n" +
-            "return { current, ttl }";
+    // INCR và EXPIRE chạy cùng một Lua script nên không bị request khác chen giữa.
+    // Script chỉ đếm + trả TTL; Java bên dưới so sánh count với quota.
+    private static final String RATE_LIMIT_LUA_SCRIPT = """
+            local key = KEYS[1]
+            local window = tonumber(ARGV[1])
+            local current = redis.call('INCR', key)
+            if current == 1 then
+                redis.call('EXPIRE', key, window)
+            end
+            local ttl = redis.call('TTL', key)
+            if ttl < 0 then
+                redis.call('EXPIRE', key, window)
+                ttl = window
+            end
+            return { current, ttl }
+            """;
 
     private final RedisScript<List> script = new DefaultRedisScript<>(RATE_LIMIT_LUA_SCRIPT, List.class);
 
+    /** Thực thi Lua rồi tính quota còn lại. Chính sách hiện tại fail-open khi Redis không khả dụng. */
     @SuppressWarnings("unchecked")
     public RateLimitResult checkRateLimit(String key, long limit, long windowSeconds) {
         try {
             List<?> result = stringRedisTemplate.execute(
                     script,
                     Collections.singletonList(key),
-                    String.valueOf(limit),
                     String.valueOf(windowSeconds)
             );
 
@@ -65,7 +65,7 @@ public class RedisRateLimiter {
             log.warn("Redis rate limiter error for key {}: {}. Fail-open active.", key, ex.getMessage());
         }
 
-        // Fail-open fallback: allow request if Redis encounters error
+        // Fail-open: Redis lỗi thì cho request đi tiếp để giữ API khả dụng.
         return RateLimitResult.builder()
                 .allowed(true)
                 .currentCount(1)

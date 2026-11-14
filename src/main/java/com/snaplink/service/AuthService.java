@@ -10,29 +10,33 @@ import com.snaplink.entity.User;
 import com.snaplink.exception.BadRequestException;
 import com.snaplink.exception.ResourceNotFoundException;
 import com.snaplink.repository.UserRepository;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.Locale;
+import java.nio.charset.StandardCharsets;
+import org.springframework.dao.DataIntegrityViolationException;
+import com.snaplink.exception.ConflictException;
 import org.springframework.transaction.annotation.Transactional;
 
+/** Nghiệp vụ tài khoản. Password chỉ lưu bản BCrypt hash; JWT được tạo khi xác thực thành công. */
 @Service
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthService {
 
-    UserRepository userRepository;
-    PasswordEncoder passwordEncoder;
-    JwtTokenProvider tokenProvider;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider tokenProvider;
 
+    /** Tạo tài khoản và trả JWT. Database UNIQUE là chốt chặn khi nhiều request cùng đăng ký. */
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        String normalizedEmail = request.getEmail().toLowerCase().trim();
+        validatePasswordLength(request.getPassword());
+        String normalizedEmail = request.getEmail().trim().toLowerCase(Locale.ROOT);
 
         if (userRepository.existsByEmail(normalizedEmail)) {
-            throw new BadRequestException("Email is already registered");
+            throw new ConflictException("Email is already registered");
         }
 
         User user = User.builder()
@@ -40,22 +44,22 @@ public class AuthService {
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .build();
 
-        User savedUser = userRepository.save(user);
+        User savedUser;
+        try {
+            savedUser = userRepository.save(user);
+            userRepository.flush(); // Bắt cả trường hợp hai request cùng đăng ký một email.
+        } catch (DataIntegrityViolationException ex) {
+            throw new ConflictException("Email is already registered");
+        }
 
-        String token = tokenProvider.generateToken(savedUser.getId(), savedUser.getEmail());
-
-        return AuthResponse.builder()
-                .accessToken(token)
-                .tokenType("Bearer")
-                .expiresIn(tokenProvider.getExpirationInMs())
-                .userId(savedUser.getId())
-                .email(savedUser.getEmail())
-                .build();
+        return createAuthResponse(savedUser);
     }
 
+    /** So sánh password với BCrypt hash; thông báo chung để không tiết lộ email có tồn tại. */
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest request) {
-        String normalizedEmail = request.getEmail().toLowerCase().trim();
+        validatePasswordLength(request.getPassword());
+        String normalizedEmail = request.getEmail().trim().toLowerCase(Locale.ROOT);
 
         User user = userRepository.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new BadRequestException("Invalid email or password"));
@@ -64,10 +68,19 @@ public class AuthService {
             throw new BadRequestException("Invalid email or password");
         }
 
-        String token = tokenProvider.generateToken(user.getId(), user.getEmail());
+        return createAuthResponse(user);
+    }
 
+    private void validatePasswordLength(String password) {
+        if (password.getBytes(StandardCharsets.UTF_8).length > 72) {
+            throw new BadRequestException("Password must not exceed 72 UTF-8 bytes");
+        }
+    }
+
+    /** Đăng ký và đăng nhập trả cùng một contract; expiresIn giữ đơn vị millisecond. */
+    private AuthResponse createAuthResponse(User user) {
         return AuthResponse.builder()
-                .accessToken(token)
+                .accessToken(tokenProvider.generateToken(user.getId(), user.getEmail()))
                 .tokenType("Bearer")
                 .expiresIn(tokenProvider.getExpirationInMs())
                 .userId(user.getId())
@@ -75,6 +88,7 @@ public class AuthService {
                 .build();
     }
 
+    /** Đọc profile theo ID của token đã xác thực, không lấy ID do client tự gửi. */
     @Transactional(readOnly = true)
     public UserResponse getCurrentUser(UserPrincipal currentUser) {
         User user = userRepository.findById(currentUser.getId())

@@ -1,3 +1,6 @@
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../hooks/useToast';
+import { createUrlPayload, getErrorMessage } from '../utils/urlUtils';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -7,7 +10,9 @@ import QrModal from '../components/QrModal';
 import Toast from '../components/Toast';
 import { urlApi } from '../api/urlApi';
 
+/** Trang rút gọn public: giữ state form, gọi urlApi và chuyển kết quả cho ResultCard. */
 const HomePage = () => {
+  const { isAuthenticated } = useAuth();
   const [originalUrl, setOriginalUrl] = useState('');
   const [customAlias, setCustomAlias] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
@@ -20,15 +25,9 @@ const HomePage = () => {
   const [qrModalData, setQrModalData] = useState({ isOpen: false, url: '', code: '' });
 
   // Toast State
-  const [toast, setToast] = useState({ show: false, message: '', title: 'Thành công', type: 'success' });
+  const { toast, triggerToast } = useToast();
 
-  const triggerToast = (message, title = 'Thành công', type = 'success') => {
-    setToast({ show: true, message, title, type });
-    setTimeout(() => {
-      setToast((prev) => ({ ...prev, show: false }));
-    }, 2800);
-  };
-
+  // Ngăn browser reload, gửi dữ liệu form và hiển thị lỗi nếu request thất bại.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
@@ -40,11 +39,7 @@ const HomePage = () => {
 
     try {
       setIsLoading(true);
-      const payload = {
-        originalUrl: originalUrl.trim(),
-        customAlias: customAlias.trim() || undefined,
-        expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
-      };
+      const payload = createUrlPayload({ originalUrl, customAlias: isAuthenticated ? customAlias : '', expiresAt });
 
       const result = await urlApi.createUrl(payload);
       setCreatedUrl(result);
@@ -58,10 +53,7 @@ const HomePage = () => {
         }
       }, 100);
     } catch (err) {
-      const errorMsg =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
-        'Không thể rút gọn link. Vui lòng kiểm tra lại URL hoặc alias của bạn.';
+      const errorMsg = getErrorMessage(err, 'Không thể rút gọn link. Vui lòng kiểm tra lại URL hoặc alias.');
       setFormError(errorMsg);
       triggerToast(errorMsg, 'Lỗi', 'error');
     } finally {
@@ -69,6 +61,7 @@ const HomePage = () => {
     }
   };
 
+  // Lưu URL/code được chọn và mở modal QR.
   const handleOpenQr = (url, code) => {
     setQrModalData({ isOpen: true, url, code });
   };
@@ -186,13 +179,14 @@ const HomePage = () => {
                       </label>
                       <div className="flex items-center bg-surface-card rounded-xl overflow-hidden shadow-sm border border-border-subtle">
                         <span className="px-3 py-2 bg-surface-card-subtle font-code-sm text-code-sm text-text-muted select-none border-r border-border-subtle">
-                          snaplink.io/
+                          Alias:
                         </span>
                         <input
                           type="text"
+                          disabled={!isAuthenticated}
                           value={customAlias}
                           onChange={(e) => setCustomAlias(e.target.value)}
-                          placeholder="alias-cua-ban"
+                          placeholder={isAuthenticated ? "alias-cua-ban" : "Đăng nhập để đặt alias"}
                           className="w-full px-3 py-2 font-code-sm text-code-sm text-text-primary focus:outline-none bg-transparent"
                         />
                       </div>
@@ -208,7 +202,7 @@ const HomePage = () => {
                           calendar_today
                         </span>
                         <input
-                          type="date"
+                          type="datetime-local"
                           value={expiresAt}
                           onChange={(e) => setExpiresAt(e.target.value)}
                           className="w-full pl-10 pr-3 py-2 font-body-sm text-body-sm text-text-primary focus:outline-none bg-transparent rounded-xl"
@@ -226,7 +220,7 @@ const HomePage = () => {
             <ResultCard
               urlData={createdUrl}
               onOpenQr={handleOpenQr}
-              onShowToast={(msg) => triggerToast(msg, 'Đã sao chép')}
+              onShowToast={triggerToast}
             />
           )}
         </section>

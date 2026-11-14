@@ -2,6 +2,7 @@ package com.snaplink.util;
 
 import java.util.Arrays;
 
+/** Đổi số sang chuỗi gồm 0–9, a–z, A–Z. Đây là encoding, không phải mã hoá bảo mật. */
 public final class Base62 {
 
     private static final String CHARSET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -26,33 +27,35 @@ public final class Base62 {
         // Utility class
     }
 
-    public static String encode(long num) {
-        if (num < 0) {
-            throw new IllegalArgumentException("Number must not be negative: " + num);
+    /** Chia liên tiếp cho 62, lấy phần dư rồi đảo chuỗi để được mã Base62. */
+    public static String encode(long number) {
+        if (number < 0) {
+            throw new IllegalArgumentException("Number must not be negative: " + number);
         }
-        if (num == 0) {
+        if (number == 0) {
             return String.valueOf(CHARSET.charAt(0));
         }
 
-        StringBuilder sb = new StringBuilder();
-        long current = num;
+        StringBuilder encoded = new StringBuilder();
+        long current = number;
         while (current > 0) {
             int remainder = (int) (current % BASE);
-            sb.append(CHARSET.charAt(remainder));
+            encoded.append(CHARSET.charAt(remainder));
             current /= BASE;
         }
 
-        return sb.reverse().toString();
+        return encoded.reverse().toString();
     }
 
-    public static long decode(String str) {
-        if (str == null || str.isEmpty()) {
+    /** Nhân tích luỹ với 62; kiểm tra ký tự và tràn số trước mỗi bước. */
+    public static long decode(String code) {
+        if (code == null || code.isEmpty()) {
             throw new IllegalArgumentException("Input string must not be null or empty");
         }
 
         long result = 0;
-        for (int i = 0; i < str.length(); i++) {
-            char c = str.charAt(i);
+        for (int i = 0; i < code.length(); i++) {
+            char c = code.charAt(i);
 
             // Kiểm tra xem ký tự có nằm trong bảng ASCII chuẩn (0 - 127) không
             if (c >= DECODE_MAP.length || DECODE_MAP[c] == -1) {

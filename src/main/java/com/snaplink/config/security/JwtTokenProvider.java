@@ -11,6 +11,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+/** Tạo và kiểm tra JWT có chữ ký. Chỉ token đúng chữ ký và chưa hết hạn mới được chấp nhận. */
 @Slf4j
 @Component
 public class JwtTokenProvider {
@@ -22,10 +23,14 @@ public class JwtTokenProvider {
             @Value("${app.jwt.secret}") String jwtSecret,
             @Value("${app.jwt.expiration-ms}") long jwtExpirationInMs
     ) {
+        if (jwtExpirationInMs <= 0) {
+            throw new IllegalArgumentException("JWT expiration must be positive");
+        }
         this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
         this.jwtExpirationInMs = jwtExpirationInMs;
     }
 
+    /** Ký token chứa user ID/email và thời hạn; không đưa password vào JWT. */
     public String generateToken(Long userId, String email) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
@@ -39,6 +44,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    /** Đọc subject thành user ID từ token đã được ký. */
     public Long getUserIdFromToken(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(key)
@@ -49,6 +55,7 @@ public class JwtTokenProvider {
         return Long.parseLong(claims.getSubject());
     }
 
+    /** Đọc claim email từ token có chữ ký hợp lệ. */
     public String getEmailFromToken(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(key)
@@ -59,10 +66,12 @@ public class JwtTokenProvider {
         return claims.get("email", String.class);
     }
 
+    /** Thời gian sống của token theo millisecond, không phải giây. */
     public long getExpirationInMs() {
         return jwtExpirationInMs;
     }
 
+    /** Xác minh chữ ký và thời hạn trước khi tin các claims bên trong token. */
     public boolean validateToken(String authToken) {
         try {
             Jwts.parser()

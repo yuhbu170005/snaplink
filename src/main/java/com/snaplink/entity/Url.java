@@ -2,7 +2,6 @@ package com.snaplink.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -10,6 +9,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Entity ánh xạ bảng urls. user có thể null vì guest cũng được phép tạo link. */
 @Entity
 @Table(
     name = "urls",
@@ -23,38 +23,40 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Url {
 
+    // IDENTITY: database cấp ID khi INSERT, không phải Java tự tăng biến.
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
-    @Column(name = "short_code", nullable = false, unique = true, length = 16)
-    String shortCode;
+    @Column(name = "short_code", nullable = false, unique = true, length = 64)
+    private String shortCode;
 
     @Column(name = "original_url", nullable = false, columnDefinition = "TEXT")
-    String originalUrl;
+    private String originalUrl;
 
     @Column(name = "custom_alias", unique = true, length = 64)
-    String customAlias;
+    private String customAlias;
 
+    // LAZY: chỉ tải entity liên quan khi cần, trong transaction của service.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    User user;
+    private User user;
 
     @Column(name = "expires_at")
-    Instant expiresAt;
+    private Instant expiresAt;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    Instant createdAt;
+    private Instant createdAt;
 
     @Builder.Default
     @Column(name = "is_active", nullable = false)
-    Boolean isActive = true;
+    private Boolean isActive = true;
 
+    // Quan hệ ngược: mappedBy trỏ tới field phía entity con, không tạo thêm cột ở đây.
     @OneToMany(mappedBy = "url", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    List<ClickEvent> clickEvents = new ArrayList<>();
+    private List<ClickEvent> clickEvents = new ArrayList<>();
 }

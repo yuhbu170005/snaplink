@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+/** Hiển thị kết quả tạo link, sao chép và mở QR; chỉ chủ link mới thấy đường dẫn analytics. */
 const ResultCard = ({ urlData, onOpenQr, onShowToast }) => {
   const [copied, setCopied] = useState(false);
 
   if (!urlData) return null;
 
-  const shortUrl = urlData.shortUrl || `https://snaplink.io/${urlData.customAlias || urlData.shortCode}`;
+  const shortUrl = urlData.shortUrl;
 
+  // Chờ clipboard ghi thành công mới báo đã sao chép.
   const handleCopy = () => {
     navigator.clipboard.writeText(shortUrl).then(() => {
       setCopied(true);
       if (onShowToast) {
-        onShowToast('Đã sao chép liên kết vào clipboard!', 'check');
+        onShowToast('Đã sao chép liên kết vào clipboard!', 'Thành công');
       }
       setTimeout(() => setCopied(false), 2400);
-    });
+    }).catch(() => onShowToast?.('Không thể sao chép liên kết', 'Lỗi', 'error'));
   };
 
   return (
@@ -35,7 +37,7 @@ const ResultCard = ({ urlData, onOpenQr, onShowToast }) => {
               🎉 Đường link của bạn đã sẵn sàng!
             </span>
             <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-surface-container-high text-primary">
-              {urlData.status || 'Active'}
+              {urlData.isActive ? 'Đang hoạt động' : 'Đã vô hiệu hoá'}
             </span>
           </div>
 
@@ -49,7 +51,7 @@ const ResultCard = ({ urlData, onOpenQr, onShowToast }) => {
               {shortUrl}
             </a>
             <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-tertiary-fixed text-on-tertiary-fixed">
-              Đã kiểm tra an toàn
+              URL HTTP/HTTPS
             </span>
           </div>
 
@@ -102,7 +104,7 @@ const ResultCard = ({ urlData, onOpenQr, onShowToast }) => {
           </button>
 
           {/* Analytics Button */}
-          {urlData.id ? (
+          {urlData.userId ? (
             <Link
               to={`/analytics/${urlData.id}`}
               className="px-3 py-2.5 rounded-xl bg-surface-container hover:bg-surface-container-high font-label-lg text-label-lg text-primary flex items-center justify-center gap-1 transition-colors border border-primary/10"

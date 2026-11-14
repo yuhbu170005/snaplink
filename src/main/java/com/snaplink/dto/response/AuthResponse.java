@@ -1,23 +1,22 @@
 package com.snaplink.dto.response;
 
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 
+/** DTO token sau đăng ký/đăng nhập; expiresIn dùng millisecond để giữ tương thích API hiện tại. */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuthResponse {
 
-    String accessToken;
+    private String accessToken;
 
     @Builder.Default
-    String tokenType = "Bearer";
+    private String tokenType = "Bearer";
 
-    long expiresIn;
+    private long expiresIn;
 
-    Long userId;
+    private Long userId;
 
-    String email;
+    private String email;
 }

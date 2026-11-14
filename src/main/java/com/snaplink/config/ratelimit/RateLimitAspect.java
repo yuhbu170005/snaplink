@@ -1,6 +1,8 @@
 package com.snaplink.config.ratelimit;
 
 import com.snaplink.config.security.UserPrincipal;
+import com.snaplink.util.ClientIpResolver;
+import org.springframework.beans.factory.annotation.Value;
 import com.snaplink.exception.RateLimitExceededException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+/** AOP chặn lời gọi hàm có @RateLimit: chọn key theo user/IP, kiểm tra quota rồi mới cho hàm chạy. */
 @Slf4j
 @Aspect
 @Component
@@ -23,6 +26,10 @@ public class RateLimitAspect {
 
     private final RedisRateLimiter redisRateLimiter;
 
+    @Value("${app.trust-proxy-headers:false}")
+    private boolean trustProxyHeaders;
+
+    /** Được AOP gọi trước controller: vượt quota thì ném exception, còn quota mới proceed(). */
     @Around("@annotation(rateLimit)")
     public Object enforceRateLimit(ProceedingJoinPoint joinPoint, RateLimit rateLimit) throws Throwable {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -41,7 +48,7 @@ public class RateLimitAspect {
             identifier = "user:" + principal.getId();
             limit = rateLimit.authLimit();
         } else {
-            String clientIp = extractClientIp(request);
+            String clientIp = ClientIpResolver.resolve(request, trustProxyHeaders);
             identifier = "ip:" + clientIp;
             limit = rateLimit.guestLimit();
         }
@@ -69,18 +76,4 @@ public class RateLimitAspect {
         return joinPoint.proceed();
     }
 
-    private String extractClientIp(HttpServletRequest request) {
-        String xForwardedFor = request.getHeader("X-Forwarded-For");
-        if (xForwardedFor != null && !xForwardedFor.trim().isEmpty()) {
-            return xForwardedFor.split(",")[0].trim();
-        }
-
-        String xRealIp = request.getHeader("X-Real-IP");
-        if (xRealIp != null && !xRealIp.trim().isEmpty()) {
-            return xRealIp.trim();
-        }
-
-        String remoteAddr = request.getRemoteAddr();
-        return (remoteAddr != null && !remoteAddr.trim().isEmpty()) ? remoteAddr : "unknown";
-    }
 }

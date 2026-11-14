@@ -6,6 +6,7 @@ import lombok.ToString;
 
 import java.time.Instant;
 
+/** Thông điệp bất biến mang dữ liệu request sang worker; không giữ HttpServletRequest đã hết vòng đời. */
 @Getter
 @Builder
 @ToString

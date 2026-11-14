@@ -10,11 +10,13 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/** Khai báo metadata API và cách nhập Bearer token trên Swagger UI. */
 @Configuration
 public class OpenApiConfig {
 
     private static final String SECURITY_SCHEME_NAME = "BearerAuth";
 
+    /** Thông tin hiển thị trên Swagger và khai báo BearerAuth cho endpoint cần JWT. */
     @Bean
     public OpenAPI snapLinkOpenAPI() {
         return new OpenAPI()

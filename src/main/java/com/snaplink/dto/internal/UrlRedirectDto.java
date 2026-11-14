@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.time.Instant;
 
+/** Dữ liệu tối thiểu cần cho redirect, dùng trong cache thay entity để tránh kéo quan hệ JPA. */
 @Data
 @Builder
 @NoArgsConstructor

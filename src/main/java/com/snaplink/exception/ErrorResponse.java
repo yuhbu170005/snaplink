@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.util.Map;
 
+/** JSON lỗi dùng chung cho frontend: HTTP status, message, timestamp và lỗi theo field nếu có. */
 @Data
 @Builder
 @NoArgsConstructor

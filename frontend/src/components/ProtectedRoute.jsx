@@ -2,8 +2,9 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+/** Đợi khôi phục phiên trước khi quyết định render trang riêng hoặc chuyển sang đăng nhập. */
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, authError } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
@@ -15,6 +16,10 @@ const ProtectedRoute = ({ children }) => {
         </div>
       </div>
     );
+  }
+
+  if (authError) {
+    return <div role="alert" className="p-8 text-center">{authError}</div>;
   }
 
   if (!isAuthenticated) {

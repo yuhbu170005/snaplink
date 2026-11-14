@@ -1,15 +1,8 @@
 import axiosClient from './axiosClient';
 
+// Chỉ mô tả endpoint. State đăng nhập thuộc AuthContext, không đặt trong API module.
 export const authApi = {
-  login: async (credentials) => {
-    return await axiosClient.post('/api/auth/login', credentials);
-  },
-
-  register: async (userData) => {
-    return await axiosClient.post('/api/auth/register', userData);
-  },
-
-  getMe: async () => {
-    return await axiosClient.get('/api/auth/me');
-  },
+  login: (credentials) => axiosClient.post('/api/auth/login', credentials),
+  register: (userData) => axiosClient.post('/api/auth/register', userData),
+  getMe: () => axiosClient.get('/api/auth/me'),
 };

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+/** Thanh điều hướng đọc tài khoản từ useAuth; nút rút gọn có thể gọi callback của trang hiện tại. */
 const Navbar = ({ onQuickShorten }) => {
   const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
@@ -10,6 +11,7 @@ const Navbar = ({ onQuickShorten }) => {
 
   const isActive = (path) => location.pathname === path;
 
+  // Ưu tiên callback của trang, nếu không có thì dẫn đến form ở trang chủ.
   const handleQuickAction = () => {
     if (onQuickShorten) {
       onQuickShorten();
@@ -68,19 +70,14 @@ const Navbar = ({ onQuickShorten }) => {
             Thống Kê
           </Link>
           <a
-            href="https://github.com"
+            href={`${import.meta.env.VITE_API_BASE_URL || ''}/swagger-ui/index.html`}
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-1.5 rounded-lg font-label-lg text-label-lg text-text-secondary hover:text-text-primary hover:bg-surface-container-high transition-colors"
           >
             Tài Liệu API
           </a>
-          <a
-            href="#pricing"
-            className="px-4 py-1.5 rounded-lg font-label-lg text-label-lg text-text-secondary hover:text-text-primary hover:bg-surface-container-high transition-colors"
-          >
-            Bảng Giá
-          </a>
+
         </nav>
 
         {/* Right Action Hub */}
@@ -114,11 +111,11 @@ const Navbar = ({ onQuickShorten }) => {
                 className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-surface-card-subtle transition-colors border border-border-subtle group"
               >
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-brand-violet text-white flex items-center justify-center font-bold text-sm">
-                  {(user?.fullName || user?.email || 'U')[0].toUpperCase()}
+                  {(user?.email || 'U')[0].toUpperCase()}
                 </div>
                 <div className="hidden md:flex flex-col text-left">
                   <span className="font-label-md text-label-md text-text-primary group-hover:text-primary transition-colors font-medium truncate max-w-[120px]">
-                    {user?.fullName || user?.email?.split('@')[0]}
+                    {user?.email?.split('@')[0]}
                   </span>
                 </div>
                 <span className="material-symbols-outlined text-text-muted text-[18px]">

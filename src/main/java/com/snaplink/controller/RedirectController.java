@@ -16,8 +16,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
+import java.util.concurrent.RejectedExecutionException;
+import lombok.extern.slf4j.Slf4j;
+import com.snaplink.util.ClientIpResolver;
+import org.springframework.beans.factory.annotation.Value;
 import java.time.Instant;
 
+/** Nhận short code, tìm link gốc rồi trả HTTP 302; click tracking chạy riêng ở background. */
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Redirect", description = "Endpoint chuyển hướng tốc độ cao (Two-Level Cache L1/L2) và ghi nhận telemetry bất đồng bộ")
@@ -25,6 +31,9 @@ public class RedirectController {
 
     private final UrlService urlService;
     private final ApplicationEventPublisher eventPublisher;
+
+    @Value("${app.trust-proxy-headers:false}")
+    private boolean trustProxyHeaders;
 
     @GetMapping("/{code:[a-zA-Z0-9_-]+}")
     @Operation(
@@ -35,6 +44,7 @@ public class RedirectController {
                     @ApiResponse(responseCode = "404", description = "Link không tồn tại, bị vô hiệu hoặc đã hết hạn")
             }
     )
+    /** Trả Location + HTTP 302 sau khi tìm link; hàng đợi tracking đầy vẫn trả redirect. */
     public ResponseEntity<Void> redirect(
             @PathVariable String code,
             HttpServletRequest request
@@ -42,15 +52,21 @@ public class RedirectController {
         UrlRedirectDto redirectDto = urlService.getRedirectInfo(code);
 
         // Phát sự kiện ghi nhận click bất đồng bộ (Non-blocking)
-        publishClickEvent(redirectDto, request);
+        try {
+            publishClickEvent(redirectDto, request);
+        } catch (RejectedExecutionException ex) {
+            // Tracking là best-effort: đầy hàng đợi không được làm mất redirect.
+            log.warn("Click tracking queue full; skipped click for urlId={}", redirectDto.getId());
+        }
 
         return ResponseEntity.status(HttpStatus.FOUND)
                 .location(URI.create(redirectDto.getOriginalUrl()))
                 .build();
     }
 
+    /** Chụp IP, user-agent, referrer và thời điểm click trước khi rời luồng HTTP. */
     private void publishClickEvent(UrlRedirectDto redirectDto, HttpServletRequest request) {
-        String ipAddress = extractClientIp(request);
+        String ipAddress = ClientIpResolver.resolve(request, trustProxyHeaders);
         String userAgent = request.getHeader("User-Agent");
         String referrer = request.getHeader("Referer");
 
@@ -67,18 +83,4 @@ public class RedirectController {
         eventPublisher.publishEvent(event);
     }
 
-    private String extractClientIp(HttpServletRequest request) {
-        String xForwardedFor = request.getHeader("X-Forwarded-For");
-        if (xForwardedFor != null && !xForwardedFor.trim().isEmpty()) {
-            return xForwardedFor.split(",")[0].trim();
-        }
-
-        String xRealIp = request.getHeader("X-Real-IP");
-        if (xRealIp != null && !xRealIp.trim().isEmpty()) {
-            return xRealIp.trim();
-        }
-
-        String remoteAddr = request.getRemoteAddr();
-        return (remoteAddr != null && !remoteAddr.trim().isEmpty()) ? remoteAddr : "unknown";
-    }
 }

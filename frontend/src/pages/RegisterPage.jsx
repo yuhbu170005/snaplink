@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+/** Form đăng ký email/password; backend không lưu họ tên nên không yêu cầu trường này. */
 const RegisterPage = () => {
-  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -13,13 +13,14 @@ const RegisterPage = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
 
+  // Ngăn browser reload, gửi dữ liệu form và hiển thị lỗi nếu request thất bại.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
     setIsLoading(true);
 
     try {
-      await register(email.trim(), password, fullName.trim());
+      await register(email.trim(), password);
       navigate('/dashboard', { replace: true });
     } catch (err) {
       const msg =
@@ -74,27 +75,6 @@ const RegisterPage = () => {
 
           {/* Register Form */}
           <form className="space-y-4" onSubmit={handleSubmit}>
-            {/* Full Name Field */}
-            <div className="space-y-1.5">
-              <label className="block font-label-lg text-label-lg text-text-primary" htmlFor="fullName">
-                Họ và tên
-              </label>
-              <div className="relative flex items-center">
-                <span className="material-symbols-outlined absolute left-3.5 text-text-muted pointer-events-none text-xl">
-                  person
-                </span>
-                <input
-                  id="fullName"
-                  type="text"
-                  required
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Nguyễn Văn A"
-                  className="w-full pl-10 pr-4 py-2.5 bg-surface-container-low focus:bg-surface-card text-text-primary rounded-xl font-body-md text-body-md transition-all duration-200 border border-border-subtle focus:border-brand-violet outline-none placeholder:text-text-muted"
-                />
-              </div>
-            </div>
-
             {/* Email Field */}
             <div className="space-y-1.5">
               <label className="block font-label-lg text-label-lg text-text-primary" htmlFor="email">

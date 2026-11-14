@@ -68,11 +68,8 @@ class AnalyticsServiceTest {
         referrerData.add(new Object[]{"https://google.com", 50L});
         when(clickEventRepository.countGroupedByReferrer(10L)).thenReturn(referrerData);
 
-        List<ClickEvent> clickEvents = List.of(
-                ClickEvent.builder().clickedAt(Instant.parse("2026-09-28T10:00:00Z")).build(),
-                ClickEvent.builder().clickedAt(Instant.parse("2026-09-28T12:00:00Z")).build()
-        );
-        when(clickEventRepository.findByUrlIdOrderByClickedAtAsc(10L)).thenReturn(clickEvents);
+        when(clickEventRepository.countGroupedByDay(10L))
+                .thenReturn(java.util.Collections.singletonList(new Object[]{"2026-09-28", 2L}));
 
         AnalyticsResponse response = analyticsService.getAnalytics(10L, 1L);
 
@@ -109,7 +106,7 @@ class AnalyticsServiceTest {
     @Test
     @DisplayName("getAnalytics: Xử lý an toàn khi URL chưa có lượt click nào")
     void getAnalytics_ZeroClicks() {
-        Url url = Url.builder().id(20L).shortCode("empty20").originalUrl("https://example.com").build();
+        Url url = Url.builder().id(20L).user(User.builder().id(1L).build()).shortCode("empty20").originalUrl("https://example.com").build();
         when(urlRepository.findById(20L)).thenReturn(Optional.of(url));
         when(clickEventRepository.countByUrlId(20L)).thenReturn(0L);
         when(clickEventRepository.countDistinctIpByUrlId(20L)).thenReturn(0L);
@@ -117,13 +114,20 @@ class AnalyticsServiceTest {
         when(clickEventRepository.countGroupedByBrowser(20L)).thenReturn(List.of());
         when(clickEventRepository.countGroupedByCountry(20L)).thenReturn(List.of());
         when(clickEventRepository.countGroupedByReferrer(20L)).thenReturn(List.of());
-        when(clickEventRepository.findByUrlIdOrderByClickedAtAsc(20L)).thenReturn(List.of());
+        when(clickEventRepository.countGroupedByDay(20L)).thenReturn(List.of());
 
-        AnalyticsResponse response = analyticsService.getAnalytics(20L, null);
+        AnalyticsResponse response = analyticsService.getAnalytics(20L, 1L);
 
         assertNotNull(response);
         assertEquals(0L, response.getTotalClicks());
         assertTrue(response.getDevices().isEmpty());
         assertTrue(response.getClicksOverTime().isEmpty());
     }
+    @Test
+    void guestLinkCannotBeReadByAnyAccount() {
+        when(urlRepository.findById(30L)).thenReturn(Optional.of(Url.builder().id(30L).build()));
+        assertThrows(ResourceNotFoundException.class, () -> analyticsService.getAnalytics(30L, 1L));
+        verifyNoInteractions(clickEventRepository);
+    }
+
 }

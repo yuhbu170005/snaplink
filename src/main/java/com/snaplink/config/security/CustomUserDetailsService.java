@@ -9,12 +9,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/** Đọc user từ database rồi chuyển thành kiểu UserDetails mà Spring Security hiểu. */
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
+    /** Tìm user bằng email cho cơ chế UserDetailsService của Spring Security. */
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -24,6 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return UserPrincipal.create(user);
     }
 
+    /** JWT chứa user ID; đọc lại DB để token của user đã bị xoá không còn được dùng. */
     @Transactional(readOnly = true)
     public UserDetails loadUserById(Long id) {
         User user = userRepository.findById(id)

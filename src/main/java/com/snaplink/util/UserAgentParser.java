@@ -3,7 +3,9 @@ package com.snaplink.util;
 import org.springframework.stereotype.Component;
 import ua_parser.Client;
 import ua_parser.Parser;
+import java.util.Locale;
 
+/** Phân tích header User-Agent để ước lượng thiết bị, browser và OS; header này không đáng tin tuyệt đối. */
 @Component
 public class UserAgentParser {
 
@@ -15,6 +17,7 @@ public class UserAgentParser {
 
     public record UserAgentDetails(String deviceType, String browser, String os) {}
 
+    /** Dùng ua-parser kết hợp heuristic; thiếu hoặc không parse được thì trả UNKNOWN. */
     public UserAgentDetails parse(String userAgentString) {
         if (userAgentString == null || userAgentString.isBlank()) {
             return new UserAgentDetails("UNKNOWN", "UNKNOWN", "UNKNOWN");
@@ -22,7 +25,7 @@ public class UserAgentParser {
 
         try {
             Client client = parser.parse(userAgentString);
-            String uaLower = userAgentString.toLowerCase();
+            String uaLower = userAgentString.toLowerCase(Locale.ROOT);
 
             // 1. Detect Device Type
             String deviceType;

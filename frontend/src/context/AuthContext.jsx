@@ -1,93 +1,75 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { authApi } from '../api/authApi';
+import { AUTH_EXPIRED_EVENT, clearSession, readToken, saveSession } from '../utils/authStorage';
 
 const AuthContext = createContext(null);
 
-export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(() => localStorage.getItem('snaplink_jwt_token'));
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('snaplink_user');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
-  const [isLoading, setIsLoading] = useState(true);
+/** Nguồn state đăng nhập duy nhất cho Navbar, ProtectedRoute và các trang. */
+export function AuthProvider({ children }) {
+  const [token, setToken] = useState(readToken);
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(Boolean(token));
+  const [authError, setAuthError] = useState('');
 
-  useEffect(() => {
-    const fetchCurrentUser = async () => {
-      if (token) {
-        try {
-          const userData = await authApi.getMe();
-          setUser(userData);
-          localStorage.setItem('snaplink_user', JSON.stringify(userData));
-        } catch (error) {
-          console.error('Failed to fetch user info:', error);
-          logout();
-        }
-      }
-      setIsLoading(false);
-    };
-
-    fetchCurrentUser();
-  }, [token]);
-
-  const login = async (email, password) => {
-    const data = await authApi.login({ email, password });
-    const receivedToken = data.accessToken;
-    setToken(receivedToken);
-    localStorage.setItem('snaplink_jwt_token', receivedToken);
-
-    try {
-      const userData = await authApi.getMe();
-      setUser(userData);
-      localStorage.setItem('snaplink_user', JSON.stringify(userData));
-      return userData;
-    } catch {
-      const basicUser = { id: data.userId, email: data.email, fullName: data.email.split('@')[0] };
-      setUser(basicUser);
-      localStorage.setItem('snaplink_user', JSON.stringify(basicUser));
-      return basicUser;
-    }
-  };
-
-  const register = async (email, password, fullName) => {
-    const data = await authApi.register({ email, password, fullName });
-    const receivedToken = data.accessToken;
-    setToken(receivedToken);
-    localStorage.setItem('snaplink_jwt_token', receivedToken);
-
-    const basicUser = { id: data.userId, email: data.email, fullName: fullName || data.email.split('@')[0] };
-    setUser(basicUser);
-    localStorage.setItem('snaplink_user', JSON.stringify(basicUser));
-    return basicUser;
-  };
-
-  const logout = () => {
+  const logout = useCallback(() => {
+    clearSession();
     setToken(null);
     setUser(null);
-    localStorage.removeItem('snaplink_jwt_token');
-    localStorage.removeItem('snaplink_user');
-  };
+    setAuthError('');
+    setIsLoading(false);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener(AUTH_EXPIRED_EVENT, logout);
+    return () => window.removeEventListener(AUTH_EXPIRED_EVENT, logout);
+  }, [logout]);
+
+  useEffect(() => {
+    if (!token) return;
+    let cancelled = false;
+    setIsLoading(true);
+    setAuthError('');
+    // Khi reload trang, xác nhận token với backend thay vì tin dữ liệu user trong storage.
+    authApi.getMe()
+      .then((currentUser) => { if (!cancelled) setUser(currentUser); })
+      .catch((error) => {
+        if (!cancelled && error.response?.status !== 401) {
+          setAuthError('Không thể xác minh phiên đăng nhập. Vui lòng tải lại trang.');
+        }
+      })
+      .finally(() => { if (!cancelled) setIsLoading(false); });
+    // Bỏ response của request cũ khi logout hoặc token đổi trong lúc chờ mạng.
+    return () => { cancelled = true; };
+  }, [token]);
+
+  function acceptSession(data, rememberMe) {
+    saveSession(data.accessToken, rememberMe);
+    const account = { id: data.userId, email: data.email };
+    setUser(account);
+    setToken(data.accessToken);
+    return account;
+  }
+
+  async function login(email, password, rememberMe = true) {
+    const data = await authApi.login({ email, password });
+    return acceptSession(data, rememberMe);
+  }
+
+  async function register(email, password) {
+    const data = await authApi.register({ email, password });
+    return acceptSession(data, true);
+  }
 
   return (
-    <AuthContext.Provider
-      value={{
-        token,
-        user,
-        isAuthenticated: !!token,
-        isLoading,
-        login,
-        register,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={{ token, user, isAuthenticated: Boolean(token && user), isLoading, authError, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => {
+/** Component gọi useAuth() để đọc state và hành động từ provider phía trên. */
+export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
-};
+}

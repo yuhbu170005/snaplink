@@ -1,41 +1,32 @@
 import axios from 'axios';
+import { AUTH_EXPIRED_EVENT, clearSession, readToken } from '../utils/authStorage';
 
+/** Một HTTP client dùng chung; Vite proxy /api ở local, env chỉ rõ API khi deploy. */
 const axiosClient = axios.create({
-  baseURL: '',
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  baseURL: import.meta.env.VITE_API_BASE_URL || '',
+  timeout: 10000,
+  headers: { 'Content-Type': 'application/json' },
 });
 
-// Request Interceptor: Attach JWT Token if available
-axiosClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('snaplink_jwt_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+axiosClient.interceptors.request.use((config) => {
+  const token = readToken();
+  // Lưu token đã dùng để response của phiên cũ không đăng xuất phiên mới.
+  config.sessionToken = token;
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
 
-// Response Interceptor: Global error handling
 axiosClient.interceptors.response.use(
-  (response) => {
-    // Backend returns ApiResponse wrapper: { success, message, data, timestamp }
-    if (response.data && response.data.data !== undefined) {
-      return response.data.data;
-    }
-    return response.data;
-  },
+  (response) => response.data, // Backend trả DTO trực tiếp, không có lớp wrapper “data”.
   (error) => {
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem('snaplink_jwt_token');
-      localStorage.removeItem('snaplink_user');
-      // If we are not on login/register/home, redirect or emit event
+    const requestToken = error.config?.sessionToken;
+    if (error.response?.status === 401 && requestToken && requestToken === readToken()) {
+      clearSession();
+      // Cập nhật cả React state; chỉ xoá storage sẽ khiến Navbar còn báo đã đăng nhập.
+      window.dispatchEvent(new Event(AUTH_EXPIRED_EVENT));
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosClient;

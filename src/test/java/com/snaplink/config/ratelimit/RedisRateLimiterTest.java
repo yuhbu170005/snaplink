@@ -29,7 +29,7 @@ class RedisRateLimiterTest {
     @DisplayName("checkRateLimit: Cho phép request khi count <= limit")
     @SuppressWarnings("unchecked")
     void checkRateLimit_Allowed() {
-        when(stringRedisTemplate.execute(any(RedisScript.class), anyList(), any(), any()))
+        when(stringRedisTemplate.execute(any(RedisScript.class), anyList(), any()))
                 .thenReturn(List.of(5L, 50L));
 
         RateLimitResult result = redisRateLimiter.checkRateLimit("test_key", 10, 60);
@@ -45,7 +45,7 @@ class RedisRateLimiterTest {
     @DisplayName("checkRateLimit: Từ chối request khi count > limit")
     @SuppressWarnings("unchecked")
     void checkRateLimit_Exceeded() {
-        when(stringRedisTemplate.execute(any(RedisScript.class), anyList(), any(), any()))
+        when(stringRedisTemplate.execute(any(RedisScript.class), anyList(), any()))
                 .thenReturn(List.of(11L, 35L));
 
         RateLimitResult result = redisRateLimiter.checkRateLimit("test_key", 10, 60);
@@ -61,7 +61,7 @@ class RedisRateLimiterTest {
     @DisplayName("checkRateLimit: Fail-open an toàn khi Redis throw Exception")
     @SuppressWarnings("unchecked")
     void checkRateLimit_RedisException_FailOpen() {
-        when(stringRedisTemplate.execute(any(RedisScript.class), anyList(), any(), any()))
+        when(stringRedisTemplate.execute(any(RedisScript.class), anyList(), any()))
                 .thenThrow(new RuntimeException("Redis connection refused"));
 
         RateLimitResult result = redisRateLimiter.checkRateLimit("test_key", 10, 60);

@@ -7,24 +7,36 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      # SQL aggregate theo ngày phải dùng cùng UTC với timestamp trong ứng dụng.
+      connection-init-sql: SET TIME ZONE 'UTC'
 
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: true
+    open-in-view: false
+    show-sql: false
     properties:
       hibernate:
-        "[format_sql]": true
+        "[jdbc.time_zone]": UTC
 
   data:
     redis:
       url: ${REDIS_URL}
       timeout: 3000ms
+      repositories:
+        enabled: false
 
 app:
   base-url: ${APP_BASE_URL:http://localhost:8080}
   jwt:
-    secret: ${JWT_SECRET:your_super_secret_key_at_least_256_bits_long_default_snaplink_secret}
+    secret: ${JWT_SECRET}
     expiration-ms: ${JWT_EXPIRATION:86400000}
 
-
+  # Chỉ bật khi proxy phía trước đã loại bỏ header giả do client gửi.
+  trust-proxy-headers: ${TRUST_PROXY_HEADERS:false}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+  geoip:
+    # File nằm ngoài source/JAR. Restart backend sau khi thay file để nạp dữ liệu mới.
+    database-path: ${GEOIP_DATABASE_PATH:}

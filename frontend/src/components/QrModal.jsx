@@ -1,16 +1,25 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 
+/** Hiển thị QR của short URL và chuyển SVG thành PNG ngay trong trình duyệt. */
 const QrModal = ({ isOpen, onClose, url, shortCode, onCopySuccess }) => {
   const qrRef = useRef(null);
+  const [copyError, setCopyError] = useState('');
 
   if (!isOpen) return null;
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(url);
-    if (onCopySuccess) onCopySuccess();
+  // Chờ clipboard ghi thành công mới báo đã sao chép.
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopyError('');
+      onCopySuccess?.();
+    } catch {
+      setCopyError('Không thể sao chép. Vui lòng chọn đường dẫn và sao chép thủ công.');
+    }
   };
 
+  // Serialize SVG thành ảnh rồi vẽ lên canvas để tải PNG, không gọi backend.
   const handleDownloadPng = () => {
     const svg = qrRef.current.querySelector('svg');
     if (!svg) return;
@@ -34,7 +43,7 @@ const QrModal = ({ isOpen, onClose, url, shortCode, onCopySuccess }) => {
       downloadLink.click();
     };
 
-    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgData);
   };
 
   return (
@@ -54,7 +63,7 @@ const QrModal = ({ isOpen, onClose, url, shortCode, onCopySuccess }) => {
           <span className="material-symbols-outlined text-[26px]">qr_code_2</span>
         </div>
 
-        <h3 className="font-headline-sm text-headline-sm text-text-primary mb-1">Mã QR Động</h3>
+        <h3 className="font-headline-sm text-headline-sm text-text-primary mb-1">Mã QR của liên kết</h3>
         <p className="font-body-sm text-body-sm text-text-secondary mb-5">
           Quét mã để truy cập tức thì hoặc tải ảnh về cho ấn phẩm truyền thông
         </p>
@@ -65,19 +74,12 @@ const QrModal = ({ isOpen, onClose, url, shortCode, onCopySuccess }) => {
           className="p-5 bg-surface-card-subtle rounded-2xl flex items-center justify-center mb-5 shadow-inner border border-border-subtle"
         >
           <QRCodeSVG
-            value={url || 'https://snaplink.io'}
+            value={url}
             size={180}
             level="H"
             fgColor="#0F172A"
             bgColor="transparent"
-            imageSettings={{
-              src: 'https://lh3.googleusercontent.com/aida/AEtjO1UCM6d_3vHWl1Kx6GEhf56_JHJ3m7u5-fU0w-tbcjc9lvD9LqVRKjqx7qTjvouSuvIYs9HruUHOfdixBISS7XtahR0aTV5xGdodeoOxdlV80rLqgRT8IYzwTCjIdKI7YxgmG9QFuPF5FUx_PsRQejTC4b-jTdL9EcvnWKAGA0JCVgphn8ICgSSQ6-lujGcRqLegpTE-T0B5wiUkBfKAz9dbnQrQcybfcDRC61FOvaemxFR_ymCMscbjq1AD',
-              x: undefined,
-              y: undefined,
-              height: 32,
-              width: 32,
-              excavate: true,
-            }}
+
           />
         </div>
 
@@ -86,6 +88,7 @@ const QrModal = ({ isOpen, onClose, url, shortCode, onCopySuccess }) => {
           {url}
         </div>
 
+        {copyError && <p role="alert" className="text-status-rose mb-3">{copyError}</p>}
         {/* Actions */}
         <div className="flex items-center gap-3 w-full">
           <button

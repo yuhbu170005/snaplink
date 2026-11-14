@@ -1,10 +1,8 @@
 package com.snaplink.config.security;
 
 import com.snaplink.entity.User;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,15 +10,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
+/** Thông tin user dùng bên trong Spring Security; tách khỏi entity JPA và DTO trả cho frontend. */
 @Getter
 @AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserPrincipal implements UserDetails {
 
-    Long id;
-    String email;
-    String password;
-    Collection<? extends GrantedAuthority> authorities;
+    private final Long id;
+    private final String email;
+    private final String password;
+    private final Collection<? extends GrantedAuthority> authorities;
 
     public static UserPrincipal create(User user) {
         return new UserPrincipal(

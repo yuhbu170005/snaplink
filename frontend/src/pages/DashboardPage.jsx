@@ -1,4 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import CreateUrlModal from '../components/CreateUrlModal';
+import { useToast } from '../hooks/useToast';
+import { createUrlPayload, getErrorMessage, getUrlStatus, getShortUrl } from '../utils/urlUtils';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -7,12 +10,14 @@ import DeleteModal from '../components/DeleteModal';
 import Toast from '../components/Toast';
 import { urlApi } from '../api/urlApi';
 
+/** Điều phối danh sách phân trang, lọc trong trang, tạo/xoá/toggle link và các modal. */
 const DashboardPage = () => {
   const [urls, setUrls] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [pendingStatusId, setPendingStatusId] = useState(null);
 
   // Filters & Search
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,77 +36,64 @@ const DashboardPage = () => {
   const [qrModalData, setQrModalData] = useState({ isOpen: false, url: '', code: '' });
 
   // Toast
-  const [toast, setToast] = useState({ show: false, message: '', title: 'Thành công', type: 'success' });
+  const { toast, triggerToast } = useToast();
 
-  const triggerToast = (message, title = 'Thành công', type = 'success') => {
-    setToast({ show: true, message, title, type });
-    setTimeout(() => {
-      setToast((prev) => ({ ...prev, show: false }));
-    }, 2800);
-  };
-
-  const fetchUrls = async (currentPage = 0) => {
+  /** Response dùng pageNumber, isActive đúng theo DTO backend. */
+  const fetchUrls = useCallback(async (currentPage = 0, signal) => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      const data = await urlApi.getUrls({ page: currentPage, size: 10 });
-      if (data && data.content) {
-        setUrls(data.content);
-        setPage(data.page || 0);
-        setTotalPages(data.totalPages || 1);
-        setTotalElements(data.totalElements || data.content.length);
-      } else if (Array.isArray(data)) {
-        setUrls(data);
-        setTotalElements(data.length);
-      }
-    } catch (err) {
-      console.error('Error fetching URLs:', err);
-      triggerToast('Không thể tải danh sách liên kết', 'Lỗi', 'error');
+      const data = await urlApi.getUrls({ page: currentPage, size: 10 }, { signal });
+      if (signal?.aborted) return;
+      setUrls(data.content);
+      setTotalPages(data.totalPages);
+      setTotalElements(data.totalElements);
+    } catch (error) {
+      if (signal?.aborted) return;
+      triggerToast(getErrorMessage(error, 'Không thể tải danh sách liên kết'), 'Lỗi', 'error');
     } finally {
-      setIsLoading(false);
+      if (!signal?.aborted) setIsLoading(false);
     }
-  };
+  }, [triggerToast]);
 
   useEffect(() => {
-    fetchUrls(page);
-  }, [page]);
+    const controller = new AbortController();
+    fetchUrls(page, controller.signal);
+    // Đổi trang nhanh: huỷ request cũ để nó không ghi đè dữ liệu trang mới.
+    return () => controller.abort();
+  }, [page, fetchUrls]);
 
-  // Status Switch Toggle
-  const handleToggleStatus = async (item) => {
-    const newStatus = item.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+  async function handleToggleStatus(item) {
+    if (pendingStatusId !== null) return;
+    setPendingStatusId(item.id);
     try {
-      await urlApi.updateStatus(item.id, newStatus);
-      setUrls((prev) =>
-        prev.map((u) => (u.id === item.id ? { ...u, status: newStatus } : u))
-      );
-      triggerToast(
-        `Đã chuyển trạng thái liên kết sang: ${newStatus === 'ACTIVE' ? 'Kích hoạt (Active)' : 'Vô hiệu hoá (Inactive)'}`,
-        'Cập nhật trạng thái'
-      );
-    } catch (err) {
-      triggerToast('Không thể cập nhật trạng thái liên kết', 'Lỗi', 'error');
+      const updatedUrl = await urlApi.toggleStatus(item.id);
+      setUrls((previous) => previous.map((url) => url.id === item.id ? updatedUrl : url));
+      triggerToast(updatedUrl.isActive ? 'Đã kích hoạt liên kết' : 'Đã vô hiệu hoá liên kết');
+    } catch (error) {
+      triggerToast(getErrorMessage(error, 'Không thể cập nhật trạng thái liên kết'), 'Lỗi', 'error');
+    } finally {
+      setPendingStatusId(null);
     }
-  };
+  }
 
   // Create Link
+  // Tạo link rồi tải lại trang đầu để hiển thị link mới nhất.
   const handleCreateSubmit = async (e) => {
     e.preventDefault();
     if (!createForm.originalUrl) return;
 
     try {
       setIsCreating(true);
-      const payload = {
-        originalUrl: createForm.originalUrl.trim(),
-        customAlias: createForm.customAlias.trim() || undefined,
-        expiresAt: createForm.expiresAt ? new Date(createForm.expiresAt).toISOString() : undefined,
-      };
+      const payload = createUrlPayload(createForm);
 
       await urlApi.createUrl(payload);
       triggerToast('Tạo link rút gọn mới thành công!', 'Thành công');
       setIsCreateModalOpen(false);
       setCreateForm({ originalUrl: '', customAlias: '', expiresAt: '' });
-      fetchUrls(0);
+      if (page === 0) await fetchUrls(0);
+      else setPage(0);
     } catch (err) {
-      const msg = err.response?.data?.message || 'Không thể tạo link mới.';
+      const msg = getErrorMessage(err, 'Không thể tạo link mới.');
       triggerToast(msg, 'Lỗi', 'error');
     } finally {
       setIsCreating(false);
@@ -109,13 +101,15 @@ const DashboardPage = () => {
   };
 
   // Delete Link
+  // Chỉ xoá sau xác nhận và cập nhật lại phân trang khi trang hiện tại rỗng.
   const handleDeleteConfirm = async () => {
     if (!deleteModalData.id) return;
     try {
       setDeleteModalData((prev) => ({ ...prev, isLoading: true }));
       await urlApi.deleteUrl(deleteModalData.id);
-      setUrls((prev) => prev.filter((u) => u.id !== deleteModalData.id));
-      setTotalElements((prev) => Math.max(0, prev - 1));
+      // Xoá phần tử cuối trang: quay lại trang trước; còn lại thì tải trang hiện tại.
+      if (urls.length === 1 && page > 0) setPage(page - 1);
+      else await fetchUrls(page);
       triggerToast('Đã xoá liên kết thành công!', 'Đã xoá', 'success');
       setDeleteModalData({ isOpen: false, id: null, code: '', isLoading: false });
     } catch (err) {
@@ -135,22 +129,22 @@ const DashboardPage = () => {
       if (!matchesSearch) return false;
 
       if (statusFilter === 'Đang hoạt động') {
-        return item.status === 'ACTIVE';
+        return getUrlStatus(item) === 'ACTIVE';
       }
       if (statusFilter === 'Hết hạn') {
-        return item.status === 'INACTIVE' || (item.expiresAt && new Date(item.expiresAt) < new Date());
+        return getUrlStatus(item) === 'EXPIRED';
       }
+      if (statusFilter === 'Vô hiệu hoá') return getUrlStatus(item) === 'INACTIVE';
       return true;
     });
   }, [urls, searchTerm, statusFilter]);
 
   // Metrics Calculation
   const metrics = useMemo(() => {
-    const total = totalElements || urls.length;
-    const totalClicks = urls.reduce((sum, u) => sum + (u.totalClicks || 0), 0);
-    const activeCount = urls.filter((u) => u.status === 'ACTIVE').length;
-    const activeRate = total > 0 ? ((activeCount / total) * 100).toFixed(1) : '100.0';
-    return { total, totalClicks, activeCount, activeRate };
+    const total = totalElements;
+    const activeCount = urls.filter((url) => getUrlStatus(url) === 'ACTIVE').length;
+    const activeRate = urls.length ? ((activeCount / urls.length) * 100).toFixed(1) : '0.0';
+    return { total, pageCount: urls.length, activeCount, activeRate };
   }, [urls, totalElements]);
 
   return (
@@ -182,7 +176,7 @@ const DashboardPage = () => {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Tìm kiếm link, alias, URL..."
+                  placeholder="Tìm trong trang hiện tại..."
                   className="bg-transparent border-0 outline-none w-full font-body-sm text-body-sm text-text-primary placeholder:text-text-muted"
                 />
               </div>
@@ -201,7 +195,7 @@ const DashboardPage = () => {
 
                 {isFilterDropdownOpen && (
                   <div className="absolute right-0 mt-1 w-44 bg-surface-card rounded-xl shadow-xl z-30 py-1 border border-border-subtle">
-                    {['Tất cả', 'Đang hoạt động', 'Hết hạn'].map((opt) => (
+                    {['Tất cả', 'Đang hoạt động', 'Hết hạn', 'Vô hiệu hoá'].map((opt) => (
                       <button
                         key={opt}
                         type="button"
@@ -263,7 +257,7 @@ const DashboardPage = () => {
             <div className="bg-surface-card rounded-2xl p-6 shadow-sm border border-border-subtle flex flex-col justify-between transition-transform hover:-translate-y-0.5">
               <div className="flex items-center justify-between">
                 <span className="font-label-md text-label-md uppercase tracking-wider text-text-secondary font-semibold">
-                  Tổng Lượt Click
+                  Link Trong Trang
                 </span>
                 <div className="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-status-emerald">
                   <span className="material-symbols-outlined text-[22px]">bar_chart</span>
@@ -271,15 +265,15 @@ const DashboardPage = () => {
               </div>
               <div className="mt-4 flex items-baseline justify-between">
                 <span className="font-display text-3xl font-bold text-text-primary">
-                  {metrics.totalClicks.toLocaleString()}
+                  {metrics.pageCount}
                 </span>
                 <span className="inline-flex items-center gap-1 font-label-md text-label-md text-status-emerald bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                   <span className="material-symbols-outlined text-[14px]">arrow_upward</span>
-                  Telemetry
+                  Trang hiện tại
                 </span>
               </div>
               <div className="w-full bg-surface-card-subtle h-1.5 rounded-full mt-3 overflow-hidden">
-                <div className="bg-status-emerald h-full rounded-full" style={{ width: '80%' }}></div>
+                <div className="bg-status-emerald h-full rounded-full" style={{ width: urls.length ? '100%' : '0%' }}></div>
               </div>
             </div>
 
@@ -287,7 +281,7 @@ const DashboardPage = () => {
             <div className="bg-surface-card rounded-2xl p-6 shadow-sm border border-border-subtle flex flex-col justify-between transition-transform hover:-translate-y-0.5">
               <div className="flex items-center justify-between">
                 <span className="font-label-md text-label-md uppercase tracking-wider text-text-secondary font-semibold">
-                  Link Đang Hoạt Động
+                  Link Hoạt Động Trong Trang
                 </span>
                 <div className="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-primary">
                   <span className="material-symbols-outlined text-[22px]">bolt</span>
@@ -299,7 +293,7 @@ const DashboardPage = () => {
                     {metrics.activeCount}
                   </span>
                   <span className="font-body-md text-body-md text-text-muted">
-                    / {metrics.total} link
+                    / {metrics.pageCount} link
                   </span>
                 </div>
                 <span className="inline-flex items-center gap-1.5 font-label-md text-label-md text-status-emerald bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
@@ -374,8 +368,9 @@ const DashboardPage = () => {
                   ) : (
                     filteredUrls.map((item) => {
                       const displayCode = item.customAlias || item.shortCode;
-                      const shortUrl = item.shortUrl || `https://snaplink.io/${displayCode}`;
-                      const isActive = item.status === 'ACTIVE';
+                      const shortUrl = getShortUrl(item);
+                      const isActive = item.isActive;
+                      const isExpired = getUrlStatus(item) === 'EXPIRED';
 
                       return (
                         <tr
@@ -392,7 +387,7 @@ const DashboardPage = () => {
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1 text-brand-violet hover:text-brand-indigo font-semibold"
                             >
-                              <span>snaplink.io/{displayCode}</span>
+                              <span>{shortUrl}</span>
                               <span className="material-symbols-outlined text-[15px] opacity-70 group-hover:translate-x-0.5 transition-transform">
                                 open_in_new
                               </span>
@@ -439,6 +434,7 @@ const DashboardPage = () => {
                               type="button"
                               role="switch"
                               aria-checked={isActive}
+                              disabled={pendingStatusId !== null}
                               onClick={() => handleToggleStatus(item)}
                               className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none ${
                                 isActive ? 'bg-status-emerald' : 'bg-outline-variant'
@@ -461,8 +457,9 @@ const DashboardPage = () => {
                                 type="button"
                                 title="Sao chép liên kết"
                                 onClick={() => {
-                                  navigator.clipboard.writeText(shortUrl);
-                                  triggerToast(`Đã sao chép: ${shortUrl}`, 'Thành công');
+                                  navigator.clipboard.writeText(shortUrl)
+                                    .then(() => triggerToast(`Đã sao chép: ${shortUrl}`))
+                                    .catch(() => triggerToast('Không thể sao chép liên kết', 'Lỗi', 'error'));
                                 }}
                                 className="p-2 rounded-lg text-text-secondary hover:text-brand-violet hover:bg-surface-container transition-colors cursor-pointer"
                               >
@@ -498,7 +495,7 @@ const DashboardPage = () => {
                                   setDeleteModalData({
                                     isOpen: true,
                                     id: item.id,
-                                    code: `snaplink.io/${displayCode}`,
+                                    code: displayCode,
                                     isLoading: false,
                                   })
                                 }
@@ -550,98 +547,8 @@ const DashboardPage = () => {
         </div>
       </main>
 
-      {/* Quick Create Link Modal */}
-      {isCreateModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/40 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="bg-surface-card rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl flex flex-col gap-4 border border-border-subtle">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-brand-violet">
-                  <span className="material-symbols-outlined text-[20px]">add_link</span>
-                </div>
-                <h3 className="font-display text-xl font-bold text-text-primary">
-                  Tạo Short Link Mới
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsCreateModalOpen(false)}
-                className="text-text-muted hover:text-text-primary p-1 rounded-lg"
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-
-            <form className="flex flex-col gap-4" onSubmit={handleCreateSubmit}>
-              <div className="flex flex-col gap-1.5">
-                <label className="font-label-md text-label-md text-text-secondary">
-                  Đường dẫn gốc (Original URL) *
-                </label>
-                <div className="flex items-center bg-surface-card-subtle px-3 py-2.5 rounded-xl border border-border-subtle focus-within:border-brand-violet focus-within:bg-surface-card shadow-sm">
-                  <span className="material-symbols-outlined text-text-muted mr-2 text-[18px]">link</span>
-                  <input
-                    type="url"
-                    required
-                    value={createForm.originalUrl}
-                    onChange={(e) => setCreateForm({ ...createForm, originalUrl: e.target.value })}
-                    placeholder="https://example.com/very-long-url-path..."
-                    className="w-full bg-transparent border-0 outline-none font-body-sm text-body-sm text-text-primary"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-label-md text-label-md text-text-secondary">
-                    Custom Alias (Tuỳ chọn)
-                  </label>
-                  <div className="flex items-center bg-surface-card-subtle px-2 py-2 rounded-xl border border-border-subtle focus-within:border-brand-violet focus-within:bg-surface-card shadow-sm">
-                    <span className="font-mono text-xs text-text-muted pr-1">snaplink.io/</span>
-                    <input
-                      type="text"
-                      value={createForm.customAlias}
-                      onChange={(e) => setCreateForm({ ...createForm, customAlias: e.target.value })}
-                      placeholder="my-alias"
-                      className="w-full bg-transparent border-0 outline-none font-mono text-xs text-text-primary"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-label-md text-label-md text-text-secondary">
-                    Hạn sử dụng (Tuỳ chọn)
-                  </label>
-                  <div className="flex items-center bg-surface-card-subtle px-3 py-2 rounded-xl border border-border-subtle focus-within:border-brand-violet focus-within:bg-surface-card shadow-sm">
-                    <input
-                      type="date"
-                      value={createForm.expiresAt}
-                      onChange={(e) => setCreateForm({ ...createForm, expiresAt: e.target.value })}
-                      className="w-full bg-transparent border-0 outline-none font-body-sm text-body-sm text-text-primary"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-3 mt-4">
-                <button
-                  type="button"
-                  onClick={() => setIsCreateModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl bg-surface-card-subtle hover:bg-surface-container text-text-secondary font-label-lg text-label-lg border border-border-subtle cursor-pointer"
-                >
-                  Đóng
-                </button>
-                <button
-                  type="submit"
-                  disabled={isCreating}
-                  className="px-5 py-2.5 rounded-xl text-on-primary font-label-lg text-label-lg shadow-md hover:brightness-105 bg-brand-violet cursor-pointer disabled:opacity-75"
-                >
-                  {isCreating ? 'Đang tạo...' : 'Tạo Ngay'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <CreateUrlModal isOpen={isCreateModalOpen} form={createForm} onChange={setCreateForm}
+        onClose={() => setIsCreateModalOpen(false)} onSubmit={handleCreateSubmit} isSubmitting={isCreating} />
 
       {/* Delete Confirmation Modal */}
       <DeleteModal

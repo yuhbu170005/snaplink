@@ -73,4 +73,14 @@ class RedirectControllerTest {
         mockMvc.perform(get("/notfound"))
                 .andExpect(status().isNotFound());
     }
+    @Test
+    void fullTrackingQueueStillReturnsRedirect() throws Exception {
+        when(urlService.getRedirectInfo("busy")).thenReturn(UrlRedirectDto.builder()
+                .id(1L).shortCode("busy").originalUrl("https://example.com").isActive(true).build());
+        org.mockito.Mockito.doThrow(new java.util.concurrent.RejectedExecutionException("queue full"))
+                .when(eventPublisher).publishEvent(any(ClickTrackEvent.class));
+        mockMvc.perform(get("/busy")).andExpect(status().isFound())
+                .andExpect(header().string("Location", "https://example.com"));
+    }
+
 }

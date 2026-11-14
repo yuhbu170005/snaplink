@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+/** Kiểm tra URL/alias trước khi lưu; chỉ cho phép HTTP/HTTPS và chặn alias trùng route hệ thống. */
 public final class UrlValidator {
 
     private static final int MAX_URL_LENGTH = 2048;
@@ -44,6 +45,7 @@ public final class UrlValidator {
         // Private constructor
     }
 
+    /** Parse URI và kiểm tra scheme/host, không gọi mạng đến URL do user nhập. */
     public static void validateOriginalUrl(String originalUrl) {
         if (originalUrl == null || originalUrl.trim().isEmpty()) {
             throw new BadRequestException("Original URL cannot be empty");
@@ -77,6 +79,7 @@ public final class UrlValidator {
         }
     }
 
+    /** Giới hạn ký tự/độ dài và từ khoá dành riêng để alias không chiếm route hệ thống. */
     public static void validateCustomAlias(String customAlias) {
         if (customAlias == null || customAlias.trim().isEmpty()) {
             return;

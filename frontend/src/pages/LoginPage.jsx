@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+/** Form đăng nhập: gọi useAuth rồi trở về trang người dùng muốn mở trước đó. */
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,13 +17,14 @@ const LoginPage = () => {
 
   const from = location.state?.from?.pathname || '/dashboard';
 
+  // Ngăn browser reload, gửi dữ liệu form và hiển thị lỗi nếu request thất bại.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
     setIsLoading(true);
 
     try {
-      await login(email.trim(), password);
+      await login(email.trim(), password, rememberMe);
       navigate(from, { replace: true });
     } catch (err) {
       const msg =

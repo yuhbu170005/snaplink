@@ -12,7 +12,7 @@ class GeoLocationUtilTest {
 
     @BeforeEach
     void setUp() {
-        geoLocationUtil = new GeoLocationUtil();
+        geoLocationUtil = new GeoLocationUtil("");
     }
 
     @Test
@@ -36,4 +36,29 @@ class GeoLocationUtilTest {
         assertEquals("UNKNOWN", geoLocationUtil.resolveCountry(null));
         assertEquals("UNKNOWN", geoLocationUtil.resolveCountry("   "));
     }
+    @Test
+    void noDatabaseOrInvalidIpReturnsUnknownWithoutDnsLookup() {
+        assertEquals("UNKNOWN", geoLocationUtil.resolveCountry("8.8.8.8"));
+        assertEquals("UNKNOWN", geoLocationUtil.resolveCountry("example.com"));
+        assertEquals("UNKNOWN", geoLocationUtil.resolveCountry("999.999.999.999"));
+        assertEquals("LOCAL", geoLocationUtil.resolveCountry("fd00::1"));
+    }
+
+    @Test
+    void missingDatabaseDoesNotPreventApplicationFromRunning() throws Exception {
+        GeoLocationUtil unavailable = new GeoLocationUtil("/not-present/GeoLite2-Country.mmdb");
+        assertEquals("UNKNOWN", unavailable.resolveCountry("8.8.8.8"));
+        unavailable.close();
+    }
+    @Test
+    void readsActualMaxMindCountryDatabaseFixture() throws Exception {
+        String path = java.nio.file.Path.of(getClass().getResource("/geoip/GeoIP2-Country-Test.mmdb").toURI()).toString();
+        try (GeoLocationUtil configured = new GeoLocationUtil(path)) {
+            assertEquals("GB", configured.resolveCountry("81.2.69.160"));
+            assertEquals("JP", configured.resolveCountry("2001:218::"));
+            assertEquals("UNKNOWN", configured.resolveCountry("1.1.1.1"));
+            assertEquals("LOCAL", configured.resolveCountry("127.0.0.1"));
+        }
+    }
+
 }

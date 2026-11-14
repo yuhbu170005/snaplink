@@ -1,25 +1,24 @@
 package com.snaplink.dto.response.analytics;
 
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
+/** DTO tổng hợp thống kê toàn thời gian của một link; clicksOverTime gom theo ngày UTC. */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class AnalyticsResponse {
-    Long urlId;
-    String shortCode;
-    String originalUrl;
-    long totalClicks;
-    long uniqueVisitors;
-    List<TimeSeriesPoint> clicksOverTime;
-    List<StatItem> devices;
-    List<StatItem> browsers;
-    List<StatItem> countries;
-    List<StatItem> referrers;
+    private Long urlId;
+    private String shortCode;
+    private String originalUrl;
+    private long totalClicks;
+    private long uniqueVisitors;
+    private List<TimeSeriesPoint> clicksOverTime;
+    private List<StatItem> devices;
+    private List<StatItem> browsers;
+    private List<StatItem> countries;
+    private List<StatItem> referrers;
 }

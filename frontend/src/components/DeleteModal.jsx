@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Hộp xác nhận xoá; onConfirm do trang cha cung cấp, isLoading ngăn gửi xoá nhiều lần. */
 const DeleteModal = ({ isOpen, onClose, onConfirm, targetName, isLoading }) => {
   if (!isOpen) return null;
 

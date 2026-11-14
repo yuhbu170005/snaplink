@@ -3,22 +3,18 @@ package com.snaplink.service;
 import com.snaplink.dto.response.analytics.AnalyticsResponse;
 import com.snaplink.dto.response.analytics.StatItem;
 import com.snaplink.dto.response.analytics.TimeSeriesPoint;
-import com.snaplink.entity.ClickEvent;
 import com.snaplink.entity.Url;
 import com.snaplink.exception.ResourceNotFoundException;
 import com.snaplink.repository.ClickEventRepository;
 import com.snaplink.repository.UrlRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.List;
 
-@Slf4j
+/** Đọc dữ liệu aggregate từ repository và chuyển thành DTO cho dashboard. */
 @Service
 @RequiredArgsConstructor
 public class AnalyticsService {
@@ -26,15 +22,14 @@ public class AnalyticsService {
     private final UrlRepository urlRepository;
     private final ClickEventRepository clickEventRepository;
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneOffset.UTC);
-
+    /** Kiểm tra chủ sở hữu trước, sau đó mới truy vấn thống kê để tránh lộ dữ liệu. */
     @Transactional(readOnly = true)
     public AnalyticsResponse getAnalytics(Long urlId, Long currentUserId) {
         Url url = urlRepository.findById(urlId)
                 .orElseThrow(() -> new ResourceNotFoundException("URL not found with id: " + urlId));
 
-        // Check ownership if URL belongs to a registered user
-        if (url.getUser() != null && !url.getUser().getId().equals(currentUserId)) {
+        // Guest link không có chủ sở hữu nên không có dashboard analytics riêng.
+        if (currentUserId == null || url.getUser() == null || !url.getUser().getId().equals(currentUserId)) {
             throw new ResourceNotFoundException("URL not found with id: " + urlId);
         }
 
@@ -46,9 +41,7 @@ public class AnalyticsService {
         List<StatItem> countries = mapGroupedStats(clickEventRepository.countGroupedByCountry(urlId), totalClicks);
         List<StatItem> referrers = mapGroupedStats(clickEventRepository.countGroupedByReferrer(urlId), totalClicks);
 
-        // Time Series data (grouped by date)
-        List<ClickEvent> allClicks = clickEventRepository.findByUrlIdOrderByClickedAtAsc(urlId);
-        List<TimeSeriesPoint> clicksOverTime = buildTimeSeries(allClicks);
+        List<TimeSeriesPoint> clicksOverTime = buildTimeSeries(clickEventRepository.countGroupedByDay(urlId));
 
         return AnalyticsResponse.builder()
                 .urlId(url.getId())
@@ -64,6 +57,7 @@ public class AnalyticsService {
                 .build();
     }
 
+    /** Chuyển từng nhóm [tên, số lượng] thành DTO và tính phần trăm, xử lý tổng bằng 0. */
     private List<StatItem> mapGroupedStats(List<Object[]> rawList, long totalClicks) {
         if (rawList == null || rawList.isEmpty() || totalClicks == 0) {
             return Collections.emptyList();
@@ -78,27 +72,16 @@ public class AnalyticsService {
                     .count(count)
                     .percentage(percentage)
                     .build();
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
-    private List<TimeSeriesPoint> buildTimeSeries(List<ClickEvent> events) {
-        if (events == null || events.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        Map<String, Long> dateCountMap = new LinkedHashMap<>();
-        for (ClickEvent event : events) {
-            if (event.getClickedAt() != null) {
-                String dateStr = DATE_FORMATTER.format(event.getClickedAt());
-                dateCountMap.put(dateStr, dateCountMap.getOrDefault(dateStr, 0L) + 1L);
-            }
-        }
-
-        return dateCountMap.entrySet().stream()
-                .map(entry -> TimeSeriesPoint.builder()
-                        .timestamp(entry.getKey())
-                        .clicks(entry.getValue())
+    /** Mỗi dòng SQL trả [ngày UTC, số click]; chuyển sang DTO dùng cho biểu đồ. */
+    private List<TimeSeriesPoint> buildTimeSeries(List<Object[]> rows) {
+        return rows.stream()
+                .map(row -> TimeSeriesPoint.builder()
+                        .timestamp(row[0].toString())
+                        .clicks(((Number) row[1]).longValue())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 }

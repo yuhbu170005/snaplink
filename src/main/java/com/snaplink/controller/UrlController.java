@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+/** API tạo và quản lý link. @AuthenticationPrincipal lấy tài khoản do JWT filter xác thực. */
 @RestController
 @RequestMapping("/api/urls")
 @RequiredArgsConstructor
@@ -40,6 +41,7 @@ public class UrlController {
                     @ApiResponse(responseCode = "429", description = "Vượt quá giới hạn rate limit")
             }
     )
+    /** Tạo link cho guest hoặc user; chỉ user đã đăng nhập mới được chọn custom alias. */
     public ResponseEntity<UrlResponse> createShortUrl(
             @Valid @RequestBody CreateUrlRequest request,
             @AuthenticationPrincipal UserPrincipal currentUser
@@ -58,6 +60,7 @@ public class UrlController {
                     @ApiResponse(responseCode = "401", description = "Chưa xác thực JWT token")
             }
     )
+    /** Chỉ đọc link của user hiện tại, có phân trang để giới hạn dữ liệu mỗi request. */
     public ResponseEntity<PageResponse<UrlResponse>> getMyUrls(
             @AuthenticationPrincipal UserPrincipal currentUser,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
@@ -78,6 +81,7 @@ public class UrlController {
                     @ApiResponse(responseCode = "404", description = "Không tìm thấy URL")
             }
     )
+    /** Đọc một link kèm điều kiện sở hữu; không cho phép đọc link của tài khoản khác. */
     public ResponseEntity<UrlResponse> getUrlById(
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal currentUser
@@ -97,6 +101,7 @@ public class UrlController {
                     @ApiResponse(responseCode = "404", description = "Không tìm thấy URL hoặc không thuộc quyền sở hữu")
             }
     )
+    /** Xoá link của chính user; click liên quan được xoá theo quan hệ và cache được vô hiệu hoá. */
     public ResponseEntity<Void> deleteUrl(
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal currentUser
@@ -116,6 +121,7 @@ public class UrlController {
                     @ApiResponse(responseCode = "404", description = "Không tìm thấy URL")
             }
     )
+    /** Đảo isActive hiện tại; API này không nhận trạng thái đích trong body. */
     public ResponseEntity<UrlResponse> toggleUrlStatus(
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal currentUser
