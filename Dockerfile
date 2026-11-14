@@ -1,3 +1,10 @@
+FROM node:22-bookworm-slim AS frontend
+WORKDIR /frontend
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/ ./
+RUN npm run build
+
 # ==========================================
 # Multi-Stage Build Dockerfile for SnapLink
 # Java 21 / Spring Boot 4.x
@@ -13,6 +20,7 @@ COPY mvnw .
 RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
 
 COPY src src
+COPY --from=frontend /frontend/dist/ src/main/resources/static/
 RUN ./mvnw clean package -DskipTests -B
 
 # Stage 2: Minimal Production Runtime
@@ -32,4 +40,5 @@ EXPOSE 8080
 
 ENV JAVA_OPTS="-XX:+UseG1GC -XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0"
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+COPY --chmod=755 deploy/start.sh /app/start.sh
+ENTRYPOINT ["/app/start.sh"]

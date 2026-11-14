@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: snaplink-app
+    runtime: docker
+    plan: free
+    region: singapore
+    healthCheckPath: /v3/api-docs
+    envVars:
+      - key: RENDER_DATABASE_URL
+        fromDatabase:
+          name: snaplink-db
+          property: connectionString
+      - key: DB_USERNAME
+        fromDatabase:
+          name: snaplink-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: snaplink-db
+          property: password
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: snaplink-cache
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+  - type: keyvalue
+    name: snaplink-cache
+    plan: free
+    region: singapore
+    ipAllowList: []
+    maxmemoryPolicy: allkeys-lru
+
+databases:
+  - name: snaplink-db
+    plan: free
+    region: singapore
+    ipAllowList: []

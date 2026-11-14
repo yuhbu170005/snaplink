@@ -24,6 +24,7 @@ public final class UrlValidator {
             "urls",
             "login",
             "register",
+            "dashboard",
             "admin",
             "health",
             "docs",
