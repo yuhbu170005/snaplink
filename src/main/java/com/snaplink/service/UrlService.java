@@ -42,6 +42,8 @@ public class UrlService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final Cache<String, UrlRedirectDto> urlCaffeineCache;
 
+    @Value("${app.cache.namespace:}")
+    private String cacheNamespace = "";
     private static final String REDIS_KEY_PREFIX = "url:code:";
     private static final Duration DEFAULT_CACHE_TTL = Duration.ofHours(24);
 
@@ -155,7 +157,7 @@ public class UrlService {
     /** Đọc Redis an toàn. Trả null nghĩa là cache miss hoặc Redis đang lỗi. */
     private UrlRedirectDto readRedis(String code) {
         try {
-            Object value = redisTemplate.opsForValue().get(REDIS_KEY_PREFIX + code);
+            Object value = redisTemplate.opsForValue().get(cacheNamespace + REDIS_KEY_PREFIX + code);
             return value instanceof UrlRedirectDto dto ? dto : null;
         } catch (Exception ex) {
             log.warn("Cannot read redirect cache: {}", ex.getMessage());
@@ -166,7 +168,7 @@ public class UrlService {
     /** Cache không sống lâu hơn link và tối đa 24 giờ. */
     private void writeRedis(String code, UrlRedirectDto redirect) {
         try {
-            redisTemplate.opsForValue().set(REDIS_KEY_PREFIX + code, redirect, calculateTtl(redirect.getExpiresAt()));
+            redisTemplate.opsForValue().set(cacheNamespace + REDIS_KEY_PREFIX + code, redirect, calculateTtl(redirect.getExpiresAt()));
         } catch (Exception ex) {
             log.warn("Cannot write redirect cache: {}", ex.getMessage());
         }
@@ -271,10 +273,10 @@ public class UrlService {
         // 2. Evict L2 Redis
         try {
             if (shortCode != null) {
-                redisTemplate.delete(REDIS_KEY_PREFIX + shortCode);
+                redisTemplate.delete(cacheNamespace + REDIS_KEY_PREFIX + shortCode);
             }
             if (customAlias != null && !customAlias.equals(shortCode)) {
-                redisTemplate.delete(REDIS_KEY_PREFIX + customAlias);
+                redisTemplate.delete(cacheNamespace + REDIS_KEY_PREFIX + customAlias);
             }
         } catch (Exception ex) {
             log.warn("Failed to evict Redis cache: {}", ex.getMessage());

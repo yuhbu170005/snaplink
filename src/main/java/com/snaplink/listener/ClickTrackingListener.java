@@ -11,6 +11,7 @@ import com.snaplink.util.UserAgentParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -29,6 +30,8 @@ public class ClickTrackingListener {
     private final UserAgentParser userAgentParser;
     private final GeoLocationUtil geoLocationUtil;
 
+    @Value("${app.cache.namespace:}")
+    private String cacheNamespace = "";
     private static final String REDIS_CLICKS_KEY_PREFIX = "url:clicks:";
 
     /** Tăng counter Redis và lưu click độc lập; lỗi một bước không ngăn bước còn lại. */
@@ -46,7 +49,7 @@ public class ClickTrackingListener {
     /** Counter chỉ là số liệu phụ trợ; dashboard lấy click đã lưu trong DB làm nguồn chính. */
     private void incrementCounter(Long urlId) {
         try {
-            stringRedisTemplate.opsForValue().increment(REDIS_CLICKS_KEY_PREFIX + urlId);
+            stringRedisTemplate.opsForValue().increment(cacheNamespace + REDIS_CLICKS_KEY_PREFIX + urlId);
         } catch (Exception ex) {
             log.warn("Cannot increment click counter for urlId={}: {}", urlId, ex.getMessage());
         }
